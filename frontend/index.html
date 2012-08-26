@@ -47,9 +47,15 @@ var map = undefined;
 var addedPoints = 0;
 var markerGens = [];
 
-var scale=10
-var chart_points = 10
-var timeOffset= 140
+var scale=10;
+var chart_points = 10;
+var timeOffset= 140;
+
+var startTime = new Date().getTime();
+var totalCNode = 0, totalMNode = 0, totalDNode = 0;
+var totalCWay = 0, totalMWay = 0, totalDWay = 0;
+var totalCRel = 0, totalMRel = 0, totalDRel = 0;
+var seenUsers = Array();
 
 function downloadAndRefreshMap() {
     $.getJSON("get-last-data.py?scale=" + scale, function(data) {
@@ -83,6 +89,22 @@ function addBestPoint() {
         downloadAndRefreshMap();
         setTimeout(addBestPoint, 1000);
     } else {
+        var cnode = bestPoint["cnode"];
+        var mnode = bestPoint["mnode"];
+        var dnode = bestPoint["dnode"];
+        var cway = bestPoint["cway"];
+        var mway = bestPoint["mway"];
+        var dway = bestPoint["dway"];
+        var crel = bestPoint["crel"];
+        var mrel = bestPoint["mrel"];
+        var drel = bestPoint["drel"];
+        totalCNode += cnode; totalMNode += mnode; totalDNode += dnode;
+        totalCWay += cway; totalMWay += mway; totalDWay += dway;
+        totalCRel += crel; totalMRel += mrel; totalDRel += drel;
+        totalChanges = totalCNode+totalMNode+totalDNode+totalCWay+totalMWay+totalDWay+totalCRel+totalMRel+totalDRel;
+
+        minutes = (new Date().getTime() - startTime)/60000;
+
         /* Draw it */
         ++addedPoints;
         {
@@ -118,7 +140,13 @@ function addBestPoint() {
             var lon = (changeset["minLon"] +  changeset["maxLon"]) / 2
             var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
             d =  new Date(changeset["time"] * 1000);
-            var u = changeset["user"]
+            var u = changeset["user"];
+
+            if (u in seenUsers) {
+            } else {
+                seenUsers.push(u);
+            }
+
             var time = $.format.date(d, "HH:mm:ss"); // d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
             var content = "User: " + u + " - " + time + "<br />";
             content += "cnode=" + changeset["cnode"] +  " mnode=" + changeset["mnode"] +  " dnode=" + changeset["dnode"] + "<br />";
@@ -151,6 +179,8 @@ function addBestPoint() {
                }, 500);
 
         }
+        $("#summary").html("Viewing since " + minutes.toFixed(0) + "minutes, " + totalChanges + " changes by " + seenUsers.length + " users");
+        
         markerGens.push(genMarkers);
         if (markerGens.length >= 5) {
             for (var i in markerGens[0]) {
@@ -370,6 +400,7 @@ $(document).ready(function() {
         </script>
     <div id="map" ></div>
     <div id="tail">
+    <div id="summary"></div>
     <div id="tailhead">
     <table width="100%">
     <tr>
