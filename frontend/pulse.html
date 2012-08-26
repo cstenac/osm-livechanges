@@ -12,13 +12,23 @@
 <style>
 body {
     min-height: 100%;
+    margin: 0px;
+    font-family: Arial;
 }
 #maintable {
     width: 100%;
     height: 100%;
 }
-#summary {
+tr.detailed {
+    color: red;
+}
+#currentChangeset{
  font-size: 15px;
+ width: 100%;
+ text-align: center;
+}
+#summary {
+ font-size: 16px;
  width: 100%;
  text-align: center;
 
@@ -26,9 +36,10 @@ body {
 }
 #mapcell {
     height: 400px;
-    width: 50%;
+    width: 100%;
 }
 #map { height: 100%; width: 100%; }
+#smallMap { height: 100%; width: 100%; }
 /*#map { height: 50%; width: 50%; position: relative; float: left } */
 #tail {
 /*    position: relative;
@@ -36,16 +47,19 @@ float: right;
 height: 50%;
 width: 50%;
 */
-       font-size: 12px;
+       font-size: 14px;
 }
 
 #graph_details {
     /*visibility: hidden;*/
-display: none;
+}
+
+table {
+    font-size: 11px;
 }
 
 #tailscroll{
-height: 300px;
+height: 180px;
 overflow: hidden;
 }
 #graph_all_activity { /*height: 50%; position: relative; float: left; width: 50%; clear: both;*/}
@@ -70,8 +84,10 @@ var chart_sets = undefined;
 var chart_all = undefined;
 var chart_details = undefined;
 var map = undefined;
+var smallMap = undefined;
 var addedPoints = 0;
-var markerGens = [];
+var markerGens = []; // Generations of markers on top map 
+var polyGens = []; // Generation of polygons on bottom map
 
 var scale=10;
 var chart_points = 10;
@@ -81,7 +97,15 @@ var startTime = new Date().getTime();
 var totalCNode = 0, totalMNode = 0, totalDNode = 0;
 var totalCWay = 0, totalMWay = 0, totalDWay = 0;
 var totalCRel = 0, totalMRel = 0, totalDRel = 0;
+var totalChangesets = 0;
 var seenUsers = Array();
+
+var greenIcon = L.icon({
+        iconUrl : 'http://www.iosm.eu/live/lwt_map_icons/green/O.png'});
+var redIcon = L.icon({
+        iconUrl : 'http://www.iosm.eu/live/lwt_map_icons/brown/O.png'});
+
+
 
 function downloadAndRefreshMap() {
     $.getJSON("get-last-data.py?scale=" + scale, function(data) {
@@ -89,10 +113,50 @@ function downloadAndRefreshMap() {
             });
 }
 
-function detailChangeset(cnode, mnode, dnode, cway, mway, dway, crel, mrel, drel) {
-$("#graph_details").show();
+function detailChangeset(id, user, minLat, minLon, maxLat, maxLon, cnode, mnode, dnode, cway, mway, dway, crel, mrel, drel) {
+        /* Mark all ones as unselected */
+        $("#tailtable tr.detailed").each(function(e) {
+            $(this).removeClass("detailed");
+        });
+
+                        var poly = L.polygon([[minLat, minLon],
+                                [minLat, maxLon],
+                                [maxLat, maxLon],
+                                [maxLat, minLon]]).addTo(smallMap);
+    
+                        var sw = new L.LatLng(minLat,minLon);
+                        var ne = new L.LatLng(maxLat, maxLon);
+                        /* Do not zoom too much on single-nodechangesets */
+                        if (sw.lat == ne.lat) {
+                            sw.lat -= 0.02;
+                            ne.lat += 0.02;
+                            sw.lon -= 0.02;
+                            ne.lon += 0.02;
+                        }
+
+                        var bounds = new L.LatLngBounds(sw, ne);
+                        smallMap.fitBounds(bounds);
+ 
+    polyGens.push(poly);
+    if (polyGens.length >= 5) {
+        smallMap.removeLayer(polyGens[0]);
+        polyGens.reverse();
+        polyGens.pop();
+        polyGens.reverse();
+    }
+
+    $("#currentChangeset").html("Changeset <a href=\"http://www.openstreetmap.org/browse/changeset/" + id + "\">" + id + "</a> by " + user);
+    $("#graph_details").show();
     chart_details.series[0].setData([cnode]);
     chart_details.series[1].setData([mnode]);
+    chart_details.series[2].setData([dnode]);
+    chart_details.series[3].setData([cway]);
+    chart_details.series[4].setData([mway]);
+    chart_details.series[5].setData([dway]);
+    chart_details.series[6].setData([crel]);
+    chart_details.series[7].setData([mrel]);
+    chart_details.series[8].setData([drel]);
+ 
     chart_details.redraw();
 }
 
@@ -135,6 +199,7 @@ function addBestPoint() {
         totalCWay += cway; totalMWay += mway; totalDWay += dway;
         totalCRel += crel; totalMRel += mrel; totalDRel += drel;
         totalChanges = totalCNode+totalMNode+totalDNode+totalCWay+totalMWay+totalDWay+totalCRel+totalMRel+totalDRel;
+        totalChangesets += bestPoint["nbChangesets"];
 
         minutes = (new Date().getTime() - startTime)/60000;
 
@@ -165,60 +230,112 @@ function addBestPoint() {
         }
         setTimeout(addBestPoint, scale * 1000);
 
+        /* Reset all icons */
+        for (var i in markerGens){
+            var genMarkers = markerGens[i];
+            for (var j in genMarkers) {
+                for (var k in genMarkers[j]) {
+                    genMarkers[j][k].setIcon(greenIcon);
+                }  
+            }
+        }
+
         /* Draw on map */
         genMarkers = []
-            for (var i in bestPoint["changesets"]) {
+        genPolys = []
+        for (var i in bestPoint["changesets"]) {
                 var changeset = bestPoint["changesets"][i];
-                console.info("Adding changeset " + changeset["minLon"]);
+                var isTheSelectedOne = false;
+                if (parseInt(i) +1 == bestPoint["changesets"].length) {
+                    isTheSelectedOne = true;
+                }
+
+                //console.info("Adding changeset " + changeset["minLon"]);
                 var lon = (changeset["minLon"] +  changeset["maxLon"]) / 2
-                    var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
+                var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
                     d =  new Date(changeset["time"] * 1000);
                 var u = changeset["user"];
 
-                if (u in seenUsers) {
+                if ($.inArray(u, seenUsers) >= 0){
                 } else {
                     seenUsers.push(u);
                 }
-                /*detailChangeset(
-                    changeset["cnode"], changeset["mnode"], changeset["dnode"],
-                    changeset["cway"], changeset["mway"], changeset["dway"],
-                    changeset["crel"], changeset["mrel"], changeset["drel"]);
-*/
                 var time = $.format.date(d, "HH:mm:ss"); // d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
-                var content = "User: " + u + " - " + time + "<br />";
-                content += "cnode=" + changeset["cnode"] +  " mnode=" + changeset["mnode"] +  " dnode=" + changeset["dnode"] + "<br />";
-                content += "cway=" + changeset["cway"] +  " mway=" + changeset["mway"] +  " dway=" + changeset["dway"] + "<br />";
-                content += "crel=" + changeset["crel"] +  " mrel=" + changeset["mrel"] +  " drel=" + changeset["drel"] + "<br />";
-                //            var marker = L.popup().setLatLng([lat, lon]).setContent(content).addTo(map);
+
+                /* Top-map : display one marker for each changeset */
+
+                /* Bottom-map: display last one */
+
                 if (changeset["minLat"] != "-90.0") {
-                    var marker = L.marker([lat, lon]).addTo(map);
-                    var poly = L.polygon([[changeset["minLat"], changeset["minLon"]],
-                            [changeset["minLat"], changeset["maxLon"]],
-                            [changeset["maxLat"], changeset["maxLon"]],
-                            [changeset["maxLat"], changeset["minLon"]]]).addTo(map);
-                    genMarkers.push([marker, poly]);
+                    var marker = L.marker([lat, lon]);
+                    if (isTheSelectedOne) {
+                        marker.setIcon(redIcon);
+                    } else {
+                        marker.setIcon(greenIcon);
+                    }
+                    marker.addTo(map);
+                    if (isTheSelectedOne) {
+/*
+                        var poly = L.polygon([[changeset["minLat"], changeset["minLon"]],
+                                [changeset["minLat"], changeset["maxLon"]],
+                                [changeset["maxLat"], changeset["maxLon"]],
+                                [changeset["maxLat"], changeset["minLon"]]]);
+                        poly.addTo(smallMap);
+    
+                        var sw = new L.LatLng(changeset["minLat"],changeset["minLon"]);
+                        var ne = new L.LatLng(changeset["maxLat"], changeset["maxLon"]);
+                        // Do not zoom too much on single-node changesets 
+                        if (sw.lat == ne.lat) {
+                            sw.lat -= 0.02;
+                            ne.lat += 0.02;
+                            sw.lon -= 0.02;
+                            ne.lon += 0.02;
+                        }
+
+                        var bounds = new L.LatLngBounds(sw, ne);
+                        smallMap.fitBounds(bounds);
+                        genPolys.push([poly]);*/
+                    }
+                    genMarkers.push([marker]);
                 } else {
                     genMarkers.push([]);
+                    genPolys.push([]);
                 }
+
+                /* Add the changeset in the log */
                 var html = "<td width=\"20%\">" + u + "</td>";//<td>" + time + "</td>";
-                html += "<td>" + changeset["cnode"] +  "</td><td>" + changeset["mnode"] +  "</td><td>" + changeset["dnode"] + "</td>";
+/*                html += "<td>" + changeset["cnode"] +  "</td><td>" + changeset["mnode"] +  "</td><td>" + changeset["dnode"] + "</td>";
                 html += "<td>" + changeset["cway"] +  "</td><td>" + changeset["mway"] +  "</td><td>" + changeset["dway"] + "</td>";
                 html += "<td>" + changeset["crel"] +  "</td><td>" + changeset["mrel"] +  "</td><td>" + changeset["drel"] + "</td>";
+                */
+                var total =
+                    parseInt( changeset["cnode"]) +  parseInt( changeset["mnode"])+ parseInt( changeset["dnode"]) +
+                    parseInt( changeset["cway"]) +  parseInt( changeset["mway"])+ parseInt( changeset["dway"]) +
+                    parseInt( changeset["crel"]) +  parseInt( changeset["mrel"])+ parseInt( changeset["drel"]);
+                html += "<td>" + total + "</td>";
                 if (changeset["minLat"] != "-90.0") {
-                    html += "<td width=\"20%\">";
-                    html += "<a href=\"#\" onclick=\"var sw= new L.LatLng(" + changeset["minLat"] + "," + changeset["minLon"] + "),ne = new L.LatLng(" + changeset["maxLat"] + "," + changeset["maxLon"] + "), bounds = new L.LatLngBounds(sw, ne); map.fitBounds(bounds);\">Zoom</a> ";
-                    html += "<a href=\"#\" onclick=\"detailChangeset(" +  changeset["cnode"] + "," +  changeset["mnode"] + "," +  changeset["dnode"] + "," +   changeset["cway"] + "," +  changeset["mway"] + "," +  changeset["dway"] + "," +   changeset["crel"] + "," +  changeset["mrel"] + "," +  changeset["drel"] + ")\">Details</a></td>";
+                    /* Zoom button (on top map) */
+                    html += "<td width=\"50%\">";
+                    html += "<a href=\"#\" onclick=\"var sw= new L.LatLng(" + changeset["minLat"] + "," + changeset["minLon"] + "),ne = new L.LatLng(" + changeset["maxLat"] + "," + changeset["maxLon"] + "), bounds = new L.LatLngBounds(sw, ne); map.fitBounds(bounds);\">Zoom on top map</a> ";
+                    /* Details button */
+                    html += "<a href=\"#\" onclick=\"detailChangeset(" +changeset["id"] + ",'"+ changeset["user"] + "',"+ changeset["minLat"] + ","+ changeset["minLon"] + ","+ changeset["maxLat"] + ","+ changeset["maxLon"] + "," +  changeset["cnode"] + "," +  changeset["mnode"] + "," +  changeset["dnode"] + "," +   changeset["cway"] + "," +  changeset["mway"] + "," +  changeset["dway"] + "," +   changeset["crel"] + "," +  changeset["mrel"] + "," +  changeset["drel"] + ")\">Select</a></td>";
                 }   else {
                     html += "<td>N/A</td>";
                 }
-                $("<tr />").html(html).appendTo("#tailtable");
+                var zhtml = $("<tr />").html(html);
+                if (isTheSelectedOne) {
+                    //window.alert("selected");
+                    zhtml.addClass("detailed");
+                    detailChangeset(changeset["id"], changeset["user"], changeset["minLat"], changeset["minLon"], changeset["maxLat"], changeset["maxLon"],  changeset["cnode"],changeset["mnode"],  changeset["dnode"], changeset["cway"], changeset["mway"], changeset["dway"], changeset["crel"], changeset["mrel"] ,changeset["drel"]);
+                }
+                zhtml.appendTo("#tailtable");
                 var height = $("#tailscroll").get(0).scrollHeight;
                 $("#tailscroll").animate({
 scrollTop: height
 }, 500);
 
 }
-$("#summary").html("Viewing since " + minutes.toFixed(0) + "minutes, " + totalChanges + " changes by " + seenUsers.length + " users");
+$("#summary").html("" + totalChanges + " edits in " + totalChangesets +"  changesets by " + seenUsers.length + " users<br />since you opened this page " + minutes.toFixed(0) + " minutes ago");
 
 markerGens.push(genMarkers);
 if (markerGens.length >= 5) {
@@ -232,6 +349,7 @@ if (markerGens.length >= 5) {
     markerGens.pop();
     markerGens.reverse();
 }
+
 }
 }
 
@@ -281,7 +399,7 @@ setTimeout(addBestPoint, 2000);
 }
 },
 title: {
-text: 'Live edits (changes in ' + scale + 's)'
+text: 'Live edits'
 },
 xAxis: {
 type: 'datetime',
@@ -305,7 +423,7 @@ formatter: function() {
            }
          },
 legend: {
-enabled: true
+enabled: false
         },
 exporting: {
 enabled: false
@@ -356,7 +474,7 @@ load: function() {
 }
 },
 title: {
-text: 'Live edits (changesets in ' + scale + 's)'
+text: 'Live changesets'
 },
 xAxis: {
 type: 'datetime',
@@ -404,24 +522,40 @@ y: 0
 }]
 });
 
-var mapnik = new L.TileLayer(
-        'http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-attribution: 'OpenStreetMap'
-});
-var omq = new L.TileLayer(
+{
+    var mapnik = new L.TileLayer('http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'OpenStreetMap'
+    });
+    var omq = new L.TileLayer(
         'http://otile2.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
-maxZoom: 14,
-attribution: 'OpenStreetMap - MapQuest',
-opacity: 0.4
-});
-var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik } );
-map = new L.Map('map', {
-center: new L.LatLng(0, 0),
-zoom:1,
-/*                layers: [omq, mapnik]*/
-});
-map.addLayer(mapnik);
-map.addControl(control);
+        maxZoom: 14,
+        attribution: 'OpenStreetMap - MapQuest',
+        opacity: 0.4
+    });
+    var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik } );
+    map = new L.Map('map', {
+        center: new L.LatLng(25, 0),
+        zoom:2,
+    });
+    map.addLayer(omq);
+}
+{
+    var mapnik = new L.TileLayer('http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'OpenStreetMap'
+    });
+    var omq = new L.TileLayer(
+        'http://otile2.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
+        maxZoom: 14,
+        attribution: 'OpenStreetMap - MapQuest',
+        opacity: 0.4
+    });
+    var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik } );
+    smallMap = new L.Map('smallMap', {
+        center: new L.LatLng(0, 0),
+        zoom:2,
+    });
+    smallMap.addLayer(mapnik);
+}
 
 
 
@@ -430,11 +564,13 @@ chart: {
 renderTo: 'graph_details',
 type: 'bar',
 },
-title: { text: 'Changeset details' },
+title: { text: '' },
 xAxis: { categories : ['Changes'] },
 yAxis: {
-      min : 0
+      min : 0,
+      title : ''
 }, legend: {
+    enabled: false,
     reversed : true
 },
 
@@ -478,11 +614,21 @@ mapnik.addTo(map);
 
 <table id="maintable">
     <tr>
-        <td rowspan="2" id="mapcell"><div id="map" ></div></td>
-        <td id="graph1cell"><div id="graph_all_activity" style="height: 190px;"></div></td>
+        <td colspan="3" id="mapcell"><div id="map" ></div></td>
     </tr>
-    <tr>
-        <td id="graph2cell"><div id="graph_changesets" style="height: 190px;"></div></td>
+    <tr style="width:100%">
+        <td rowspan="2" style="width:50%; "; id="smallmapcell">
+            <div id="smallMap" style="height:80%"></div>
+            <div id="currentChangeset" style="height: 25px;"></div>
+            <div id="graph_details" style="height: 60px;"></div>
+
+        </td>
+        <td id="graph2cell" style="width: 25%">
+            <div id="graph_changesets" style="height: 170px;"></div>
+        </td>
+        <td>
+            <div id="graph_all_activity" style="height: 170px;"></div>
+        </td>
     </tr>
     <tr>
         <td id="tailcell">
@@ -491,10 +637,11 @@ mapnik.addTo(map);
                     <table width="100%">
                         <tr>
                             <th width="20%">User</th>
-                            <th>cnode</th><th>mnode</th><th>dnode</th>
+                            <th>Total changes</th>
+<!--                            <th>cnode</th><th>mnode</th><th>dnode</th>
                             <th>cway</th><th>mway</th><th>dway</th>
-                            <th>crel</th><th>mrel</th><th>drel</th>
-                            <th width="20%">Link</th>
+                            <th>crel</th><th>mrel</th><th>drel</th>-->
+                            <th width="50%">Link</th>
                         </tr>
                     </table>
                 </div>
@@ -503,10 +650,9 @@ mapnik.addTo(map);
                     </table>
                 </div>
             </div>
-        </td>
-        <td>   
-                <div id="summary"></div>
-            <div id="graph_details" style="height: 190px;"></div>
+       </td>
+       <td>
+            <div id="summary"></div>
         </td>
     </tr>
 </table>
