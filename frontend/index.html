@@ -11,6 +11,10 @@
    #map { height: 50%; width: 50%;  } 
 #graph_all_activity { height: 50%; position: relative; float: left; width: 50%;}
 #graph_changesets { height: 50%; width : 50%;}
+
+   .leaflet-popup-content {
+    font-size: 9px;
+   }
 </style>
 
     </head>
@@ -91,9 +95,9 @@ function addBestPoint() {
             console.info("Adding changeset " + changeset["minLon"]);
             var lon = (changeset["minLon"] +  changeset["maxLon"]) / 2
             var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
-            var content = "User: " + changeset["user"] + "<br />";
             d =  new Date(changeset["time"] * 1000);
-            content += "Time: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "<br />";
+            var content = "User: " + changeset["user"] + " - ";
+            content += "" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "<br />";
             content += "cnode=" + changeset["cnode"] +  " mnode=" + changeset["mnode"] +  " dnode=" + changeset["dnode"] + "<br />";
             content += "cway=" + changeset["cway"] +  " mway=" + changeset["mway"] +  " dway=" + changeset["dway"] + "<br />";
             content += "crel=" + changeset["crel"] +  " mrel=" + changeset["mrel"] +  " drel=" + changeset["drel"] + "<br />";
