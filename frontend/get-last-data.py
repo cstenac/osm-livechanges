@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-import sys, time, datetime, math, sqlite3, json, cgi
+import sys, time, datetime, math, sqlite3, json, cgi, os
 
 print "Content-Type: application/json"
 print ""
@@ -7,10 +7,11 @@ print ""
 data = {}
 ts = []
 
-max_delay = 1800
+scale = int(os.environ["QUERY_STRING"].split('=')[1])
+max_delay = 600
 
 now = int(time.time())
-now_aligned = now - now % 10
+now_aligned = now - now % scale
 beg = (now - max_delay)
 
 db = sqlite3.connect("/home/zorglub/public_html/livechanges/backend/changesets.db")
@@ -34,7 +35,7 @@ def copy(row):
    return x
 
 # TODO: Really gruik
-for time in xrange(now_aligned - max_delay, now_aligned, 10):
+for time in xrange(now_aligned - max_delay, now_aligned, scale):
     e = {"time" : time, "nbChangesets" : 0, "totalActivity": 0,
     "cnode" : 0, "mnode" : 0, "dnode" : 0,
     "cway" : 0, "mway" : 0, "dway" : 0,
@@ -43,7 +44,7 @@ for time in xrange(now_aligned - max_delay, now_aligned, 10):
     for row in rows:
         rowTime = int(row["time"])
 #        print "  changeset is at %s" % rowTime
-        if rowTime >= time and rowTime < time + 10:
+        if rowTime >= time and rowTime < time + scale:
  #           print "Found candidate changeset"
             # Keep this changeset for this time entry
             e["changesets"].append(copy(row))
