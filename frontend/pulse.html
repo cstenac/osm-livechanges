@@ -538,21 +538,25 @@ y: 0
         zoom:2,
     });
     map.addLayer(omq);
+    map.addControl(control)
 }
 {
     var mapnik = new L.TileLayer('http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: 'OpenStreetMap'
     });
+    /*
     var omq = new L.TileLayer(
         'http://otile2.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
         maxZoom: 14,
         attribution: 'OpenStreetMap - MapQuest',
         opacity: 0.4
     });
-    var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik } );
+    */
     smallMap = new L.Map('smallMap', {
         center: new L.LatLng(0, 0),
         zoom:2,
+        zoomControl: false,
+        attributionControl: false,
     });
     smallMap.addLayer(mapnik);
 }
