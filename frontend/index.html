@@ -1,0 +1,291 @@
+<html>
+    <head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script src="highcharts/js/highcharts.js"></script>
+
+ <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.css" />
+  <script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>
+
+
+<style>
+   #map { height: 50%; width: 50%;  } 
+#graph_all_activity { height: 50%; position: relative; float: left; width: 50%;}
+#graph_changesets { height: 50%; width : 50%;}
+</style>
+
+    </head>
+
+    <body>
+
+        <script>
+
+var currentData  = Array();
+var chart_sets = undefined;
+var chart_all = undefined;
+var map = undefined;
+var addedPoints = 0;
+var markerGens = [];
+
+
+function downloadAndRefreshMap() {
+    $.getJSON("get-last-data.py", function(data) {
+        currentData = data
+    });
+}
+
+function addBestPoint() {
+    var now = new Date().getTime() / 1000;
+    var bestStamp = now - 140;
+
+    if (currentData == undefined) return;
+    console.log("Parsing data " + currentData["timeseries"].length);
+    var bestPoint = undefined;
+    var firstPoint = 99999999999, lastPoint = 0;
+    for (var i in currentData["timeseries"]) {
+        var thisTime = currentData["timeseries"][i]["time"]
+        firstPoint = Math.min(thisTime, firstPoint)
+        lastPoint = Math.max(lastPoint, thisTime)
+//        console.log("Data " + currentData["timeseries"][i])
+        if (currentData["timeseries"][i]["time"] > bestStamp) {
+//            console.log("Trying to display " + bestStamp + " and I have " + 
+//                currentData["timeseries"][i]);
+            bestPoint = currentData["timeseries"][i];
+            break;
+        }   
+    }
+    if (bestPoint == undefined){
+        console.log("Did not fidn data to graph " + bestStamp + " (" + new Date(bestStamp*1000) + ")");
+        console.log("Found range " + firstPoint +" to " + lastPoint);
+        downloadAndRefreshMap();
+        setTimeout(addBestPoint, 1000);
+    } else {
+        /* Draw it */
+        ++addedPoints;
+        {
+            console.info("Setting point " + new Date(bestPoint["time"] * 1000) + " - " +  bestPoint["totalActivity"]);
+            t = bestPoint["time"] * 1000;
+            r =true;
+            s = addedPoints > 10;
+            chart_all.series[0].addPoint([t, bestPoint["cnode"]], r, s);
+            chart_all.series[1].addPoint([t, bestPoint["mnode"]], r, s);
+            chart_all.series[2].addPoint([t, bestPoint["dnode"]], r, s);
+            chart_all.series[3].addPoint([t, bestPoint["cway"]], r, s);
+            chart_all.series[4].addPoint([t, bestPoint["mway"]], r, s);
+            chart_all.series[5].addPoint([t, bestPoint["dway"]], r, s);
+            chart_all.series[6].addPoint([t, bestPoint["crel"]], r, s);
+            chart_all.series[7].addPoint([t, bestPoint["mrel"]], r, s);
+            chart_all.series[8].addPoint([t, bestPoint["drel"]], r, s);
+            //series.addPoint([bestPoint["time"] * 1000, bestPoint["totalActivity"]], true, addedPoints > 10);
+        }
+        {
+            series = chart_sets.series[0];
+            series.addPoint([bestPoint["time"] * 1000, bestPoint["nbChangesets"]], true, addedPoints > 10);
+
+        }
+        setTimeout(addBestPoint, 10000);
+
+        /* Draw on map */
+        genMarkers = []
+        for (var i in bestPoint["changesets"]) {
+            var changeset = bestPoint["changesets"][i];
+            console.info("Adding changeset " + changeset["minLon"]);
+            var lon = (changeset["minLon"] +  changeset["maxLon"]) / 2
+            var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
+            var content = "User: " + changeset["user"] + "<br />";
+            d =  new Date(changeset["time"] * 1000);
+            content += "Time: " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "<br />";
+            content += "cnode=" + changeset["cnode"] +  " mnode=" + changeset["mnode"] +  " dnode=" + changeset["dnode"] + "<br />";
+            content += "cway=" + changeset["cway"] +  " mway=" + changeset["mway"] +  " dway=" + changeset["dway"] + "<br />";
+            content += "crel=" + changeset["crel"] +  " mrel=" + changeset["mrel"] +  " drel=" + changeset["drel"] + "<br />";
+            var marker = L.popup().setLatLng([lat, lon]).setContent(content).addTo(map);
+            if (changeset["minLat"] != "-90.0") {
+            var poly = L.polygon([[changeset["minLat"], changeset["minLon"]],
+                        [changeset["minLat"], changeset["maxLon"]],
+                        [changeset["maxLat"], changeset["maxLon"]],
+                        [changeset["maxLat"], changeset["minLon"]]]).addTo(map);
+            genMarkers.push([marker, poly]);
+            } else {
+                genMarkers.push([marker]);
+            }
+        }
+        markerGens.push(genMarkers);
+        if (markerGens.length >= 3) {
+            for (var i in markerGens[0]) {
+                console.info("Removing 1 marker");
+                for (var j in markerGens[0][i]) {
+                    map.removeLayer(markerGens[0][i][j]);
+                }
+            }
+            markerGens.reverse();
+            markerGens.pop();
+            markerGens.reverse();
+        }
+    }
+}
+
+$(document).ready(function() {
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
+        downloadAndRefreshMap();
+    
+        chart_all = new Highcharts.Chart({
+            chart: {
+                renderTo: 'graph_all_activity',
+                type: 'area',
+                marginRight: 10,
+                events: {
+                    load: function() {
+// First thing very slow ...
+                        setTimeout(addBestPoint, 2000);
+                    }
+                }
+            },
+            title: {
+                text: 'Live edits (changes in 10s)'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150
+            },
+            yAxis: {
+                title: {
+                    text: 'Value'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) +'<br/>'+
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: true
+            },
+            exporting: {
+                enabled: false
+            },
+            plotOptions : {
+                area : {
+                    stacking : 'normal',
+                }
+            },
+            series: [
+            {name: 'Created nodes', data : []},
+            {name: 'Modified nodes', data : []},
+            {name: 'Deleted nodes', data : []},
+            {name: 'Created ways', data : []},
+            {name: 'Modified ways', data : []},
+            {name: 'Deleted ways', data : []},
+             {name: 'Created rels', data : []},
+            {name: 'Modified rels', data : []},
+            {name: 'Deleted rels', data : []},
+ 
+            ]
+        });
+        chart_sets = new Highcharts.Chart({
+            chart: {
+                renderTo: 'graph_changesets',
+                type: 'spline',
+                marginRight: 10,
+                events: {
+                    load: function() {
+// First thing very slow ...
+//                        setTimeout(addBestPoint, 2000);
+                    }
+                }
+            },
+            title: {
+                text: 'Live edits (changesets in 10s)'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150
+            },
+            yAxis: {
+                title: {
+                    text: 'Value'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) +'<br/>'+
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            exporting: {
+                enabled: false
+            },
+            series: [{
+                name: 'Changesets',
+                data: (function() {
+                      var data = [];
+/*                        time = (new Date()).getTime(),
+                        i;
+    
+                    for (i = -19; i <= 0; i++) {
+                        data.push({
+                            x: time + (i*10) * 1000,
+                            y: 0
+                        });
+                    }*/
+                    return data;
+                })()
+            }]
+        });
+
+    var mapnik = new L.TileLayer(
+        'http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'OpenStreetMap',
+        });
+            var omq = new L.TileLayer(
+                'http://otile2.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
+                    maxZoom: 14,
+                    attribution: 'OpenStreetMap - MapQuest',
+                    opacity: 0.4,
+            });
+            var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik } );
+             map = new L.Map('map', {
+                center: new L.LatLng(0, 0),
+                zoom:2,
+                layers: [omq, mapnik]
+            });
+            map.addControl(control);
+
+/*
+        map = L.map('map');
+
+          var mapnik = new L.TileLayer(
+                  'http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                      attribution: 'OpenStreetMap',
+                });
+          console.log("Adding ....");
+        mapnik.addTo(map);
+*/
+//    map.addLayer(mapnik);
+});
+
+        </script>
+    <div id="map" ></div>
+    <div id="graph_all_activity" ></div>
+    <div id="graph_changesets" ></div>
+    </body>
+</html>
