@@ -6,20 +6,27 @@
 
  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.css" />
   <script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>
+<script src="jquery.dateFormat-1.0.js"></script>
 
 
 <style>
    #map { height: 50%; width: 50%; position: relative; float: left } 
 #tail {
+   position: relative;
+   float: right;
         height: 50%;
             width: 50%;
+    font-size: 12px;
+}
+
+#tailscroll{
+height: 300px;
                 overflow: hidden;
 }
 #graph_all_activity { height: 50%; position: relative; float: left; width: 50%; clear: both;}
-#graph_changesets { height: 50%; width : 50%;}
+#graph_changesets { height: 50%; width : 50%; float: right; position: relative;}
 #tailtable {
     width: 100%;
-    font-size: 12px;
 }
 
    .leaflet-popup-content {
@@ -112,7 +119,7 @@ function addBestPoint() {
             var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
             d =  new Date(changeset["time"] * 1000);
             var u = changeset["user"]
-            var time =  d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
+            var time = $.format.date(d, "HH:mm:ss"); // d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
             var content = "User: " + u + " - " + time + "<br />";
             content += "cnode=" + changeset["cnode"] +  " mnode=" + changeset["mnode"] +  " dnode=" + changeset["dnode"] + "<br />";
             content += "cway=" + changeset["cway"] +  " mway=" + changeset["mway"] +  " dway=" + changeset["dway"] + "<br />";
@@ -128,18 +135,18 @@ function addBestPoint() {
             } else {
                 genMarkers.push([]);
             }
-            var html = "<td>" + u + "</td><td>" + time + "</td>";
+            var html = "<td width=\"20%\">" + u + "</td>";//<td>" + time + "</td>";
             html += "<td>" + changeset["cnode"] +  "</td><td>" + changeset["mnode"] +  "</td><td>" + changeset["dnode"] + "</td>";
             html += "<td>" + changeset["cway"] +  "</td><td>" + changeset["mway"] +  "</td><td>" + changeset["dway"] + "</td>";
             html += "<td>" + changeset["crel"] +  "</td><td>" + changeset["mrel"] +  "</td><td>" + changeset["drel"] + "</td>";
             if (changeset["minLat"] != "-90.0") {
-            html += "<td><a href=\"#\" onclick=\"var sw= new L.LatLng(" + changeset["minLat"] + "," + changeset["minLon"] + "),ne = new L.LatLng(" + changeset["maxLat"] + "," + changeset["maxLon"] + "), bounds = new L.LatLngBounds(sw, ne); map.fitBounds(bounds);\">Zoom</a></td>";
+            html += "<td width=\"10%\"><a href=\"#\" onclick=\"var sw= new L.LatLng(" + changeset["minLat"] + "," + changeset["minLon"] + "),ne = new L.LatLng(" + changeset["maxLat"] + "," + changeset["maxLon"] + "), bounds = new L.LatLngBounds(sw, ne); map.fitBounds(bounds);\">Zoom</a></td>";
             }   else {
                 html += "<td>N/A</td>";
             }
             $("<tr />").html(html).appendTo("#tailtable");
-             var height = $("#tail").get(0).scrollHeight;
-               $("#tail").animate({
+             var height = $("#tailscroll").get(0).scrollHeight;
+               $("#tailscroll").animate({
                       scrollTop: height
                }, 500);
 
@@ -362,15 +369,31 @@ $(document).ready(function() {
 
         </script>
     <div id="map" ></div>
-    <div id="tail"><table id="tailtable">
+    <div id="tail">
+    <div id="tailhead">
+    <table width="100%">
     <tr>
+        <th width="20%">User</th>
+        <th>cnode</th><th>mnode</th><th>dnode</th>
+        <th>cway</th><th>mway</th><th>dway</th>
+        <th>crel</th><th>mrel</th><th>drel</th>
+        <th width="10%">Link</th>
+        </tr>
+        </table>
+ 
+    </div>
+    <div id="tailscroll">
+    <table id="tailtable">
+    <!--<tr>
         <th>User</th><th>Time</th>
         <th>cnode</th><th>mnode</th><th>dnode</th>
         <th>cway</th><th>mway</th><th>dway</th>
         <th>crel</th><th>mrel</th><th>drel</th>
         <th>link</th>
         </tr>
+        -->
         </table>
+    </div>
     </div>
     <div id="graph_all_activity" ></div>
     <div id="graph_changesets" ></div>
