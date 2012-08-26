@@ -1,0 +1,12 @@
+CREATE TABLE changeset (
+  id INTEGER PRIMARY KEY,
+  user TEXT,
+  time LONG,
+  minLon FLOAT, minLat FLOAT, maxLon FLOAT, maxLat FLOAT,
+  cnode INTEGER, mnode INTEGER, dnode INTEGER,
+  cway INTEGER, mway INTEGER, dway INTEGER,
+  crel INTEGER, mrel INTEGER, drel INTEGER
+);
+
+create index idx_changeset_time on changeset(time);
+
