@@ -150,7 +150,8 @@ function addBestPoint() {
         ++addedPoints;
         {
             series = chart_edits.series[0];
-            series.addPoint([bestPoint["time"] * 1000, bestPoint["totalActivity"]/scale], false, addedPoints > 10);
+            //series.addPoint([bestPoint["time"] * 1000, bestPoint["totalActivity"]/scale], false, addedPoints > 10);
+            series.addPoint([bestPoint["time"] * 1000, bestPoint["nbChangesets"]*(60/scale)], false, addedPoints > 10);
             chart_edits.redraw();
         }
         setTimeout(addBestPoint, scale * 1000);
@@ -169,6 +170,9 @@ function addBestPoint() {
         /* Draw on map */
         genMarkers = []
         genPolys = []
+	var heightBefore = $("#tailscroll").get(0).scrollHeight;
+	var lastAdded = undefined;
+	var allAdded = Array();
         for (var i in bestPoint["changesets"]) {
             var changeset = bestPoint["changesets"][i];
 			var isTheSelectedOne = false;
@@ -278,10 +282,13 @@ function addBestPoint() {
 							changeset["maxLon"],  changeset["cnode"],changeset["mnode"],  changeset["dnode"], changeset["cway"],
 							changeset["mway"], changeset["dway"], changeset["crel"], changeset["mrel"] ,changeset["drel"]);
 					}
-					// zhtml.appendTo("#tailtable");
-					zhtml.prependTo("#tailtable");
-					var height = $("#tailscroll").get(0).scrollHeight;
-					$("#tailscroll").animate({scrollTop: height}, 500);
+					zhtml.hide();
+					 zhtml.appendTo("#tailtable");
+					 lastAdded = zhtml;
+					 allAdded.push(zhtml);
+					// zhtml.prependTo("#tailtable");
+			//		var height = $("#tailscroll").get(0).scrollHeight;
+//					$("#tailscroll").animate({scrollTop: height}, 1500);
 				}
 
 /*
@@ -307,6 +314,18 @@ function addBestPoint() {
 					markers=0;
 				}
 		} // for i
+		for (var i in allAdded) {
+			$(allAdded[i]).show();
+//			$("#tailscroll").animate({scrollTop: heightBefore}, 0);
+		}
+		var newHeight = $("#tailscroll").get(0).scrollHeight;
+		console.log("Scrolling " +  (newHeight-heightBefore));
+		$("#tailscroll").animate({scrollTop: "+=" + (newHeight-heightBefore) + "px"}, 'easeOutBack');
+//:		$("#tailscroll").animate({scrollTop: newHeight}, 'easeOutBack');
+//		if (lastAdded != undefined) {
+//			$("#tailscroll").scrollTo(lastAdded, 'easeOutBack');	
+//		}
+
 	} // if bestPoint == undefined
 } // function addBestPoint
 
@@ -347,7 +366,7 @@ chart_edits = new Highcharts.Chart({
 chart: {
 renderTo: 'graph_edits',
 type: 'spline',
-marginRight: 10,
+/*marginRight: 10,*/
 animation : {
 duration : 300, easing : 'linear'
 },
@@ -369,10 +388,10 @@ type: 'datetime',
 yAxis: {
 opposite: true,
 title: {
-text: ''
+text: 'Contributions/minute'
        }, min : 0,
 plotLines: [{
-value: 0,
+value: 1,
        width: 1,
        color: '#808080'
            }]
@@ -394,7 +413,7 @@ enabled: false
            },
 
 series: [{
-name: 'Edits',
+name: 'Contributions',
       data: (function() { return makeOldData(now);
               var data = [];
               /*                        time = (new Date()).getTime(),
