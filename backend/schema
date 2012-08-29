@@ -1,6 +1,7 @@
 CREATE TABLE changeset (
   id INTEGER PRIMARY KEY,
-  user TEXT,
+  user TEXT, uid INTEGER,
+  updated INTEGER,
   time LONG,
   minLon FLOAT, minLat FLOAT, maxLon FLOAT, maxLat FLOAT,
   cnode INTEGER, mnode INTEGER, dnode INTEGER,
@@ -10,3 +11,10 @@ CREATE TABLE changeset (
 
 create index idx_changeset_time on changeset(time);
 
+CREATE TABLE changeset_content_tag (
+  changeset_id INTEGER REFERENCES changeset(id),
+  key TEXT,
+  value TEXT
+);
+
+create index idx_changeset_content_tag on changeset_content_tag(changeset_id);
