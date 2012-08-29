@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
 <script src="jquery-1.8.0.min.js"></script>
 <script src="highcharts/js/highcharts.js"></script>
-<script src="jquery.scrollTo-1.4.3-min.js"></script>
+<script src="jquery.scrollTo-min.js"></script>
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.css" />
 <script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>
 <script src="jquery.dateFormat-1.0.js"></script>
@@ -29,10 +29,15 @@ body {
 -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; text-align: center; }
 #graph_details				{ width:95%; height: 60px; position:relative; top: -70px; opacity: 0.7; margin-left: auto; margin-right: auto; z-index: 2; }
 #middle_right			{ height: 100%; width: 50%; float: left;}
-#graph2cell					{ height: 50%;} /* opacity: 0.5; }*/
+#graph2cell					{ height: 40%;} /* opacity: 0.5; }*/
 #graph_legend 					{ display: none;width: 50%; text-align: center; font-size: 36px; position: absolute; bottom: 30px; }
 #graph_edits					{ /*margin-left:auto; margin-right:auto;*/ height: 100%; /*position: relative; top: 0px;*/ }
-#tailcell					{ height: 50%; width: 50%; clear: both; position: absolute; bottom: 0px; z-index: 0;}
+#tailcell					{ height: 60%; width: 50%; clear: both; position: absolute; bottom: 0px; z-index: 0;}
+#tail { height: 90%;}
+#tailbuttons {
+    height:10%;
+    text-align: center;
+}
 .log_time						{ border-style: none; border-width: 2px; font-weight: bold; margin-left: 10px; padding-right: 10px; height: 34px; font-size: 20px; background-repeat:no-repeat; color: #777; font-size: 24px; }
 .log_user						{ border-style: none; border-width: 2px; font-weight: bold; margin-left: 10px; width: 75%; height: 34px; font-size: 20px; background-image: url('i/6012.png'); background-repeat:no-repeat; padding-left: 36px; color: #777; font-size: 24px; }
 .log_edits						{ text-align: right; padding-right: 6px; border-style: none; border-width: 2px; font-weight: bold; margin-right: 10px; width: 25%; height: 34px; font-size: 20px; background-repeat:no-repeat; padding-left: 36px; color: #777; font-size: 24px; }
@@ -145,7 +150,14 @@ table {
        		         	</table>
 	            	</div>
     	        </div>
+    	    	<div id="tailbuttons">
+                    <input type="button" value="Prev" id="prevButton" />
+                    <input type="button" value="Play" id="playButton" />
+                    <input type="button" value="Pause" id="pauseButton" />
+                    <input type="button" value="Next" id="nextButton" />
+                </div>
        		</div>
+
     	</div>	
     </div>
     <div id="counters">
