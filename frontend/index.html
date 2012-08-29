@@ -1,6 +1,7 @@
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<script src="jquery-1.8.0.min.js"></script>
 <!--<script src="highcharts/js/highcharts.js"></script>-->
 <script src="http://highcharts.com/js/testing.js"></script>
 
@@ -12,47 +13,101 @@
 <style>
 body {
     min-height: 100%;
+    margin: 0px;
+    font-family: Arial;
 }
-#maintable {
-    width: 100%;
-    height: 100%;
+
+#maintable 	{    width: 100%;    height: 100%;}
+#map 			{    height: 40%;    width: 100%;}
+#currentChangeset	{ font-style:italic; font-weight:bold; text-align: center; }
+
+#middle				{ position: relative; width: 100%; height: 60%; }
+#middle_left			{ height: 100%; width: 50%; float: left;}
+#smallMap1					{ width:100%; height:100%; z-index: 1; opacity: 1; float:left; }
+#smallMap2					{ width:100%; height:100%; z-index: 1; opacity: 0;}
+#underSmallMap						{ width:95%; height: 100px; position:relative; top: -110px; opacity: 0.7; margin-left: auto; margin-right: auto; z-index: 1; padding: 4px 4px 0px 4px; background-color: #FFFFFF; 
+-webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; text-align: center; }
+#graph_details				{ width:95%; height: 60px; position:relative; top: -70px; opacity: 0.7; margin-left: auto; margin-right: auto; z-index: 2; }
+#middle_right			{ height: 100%; width: 50%; float: left;}
+#graph2cell					{ height: 100%; opacity: 0.5; }
+#graph_legend 					{ width: 50%; text-align: center; font-size: 36px; position: absolute; bottom: 30px; }
+#graph_edits					{ margin-left:auto; margin-right:auto; height: 100%; position: relative; top: 0px; }
+#tailcell					{ height: 100%; width: 50%; clear: both; position: absolute; bottom: 0px; z-index: 0;}
+.log_time						{ border-style: none; border-width: 2px; font-weight: bold; margin-left: 10px; padding-right: 10px; height: 34px; font-size: 20px; background-repeat:no-repeat; color: #777; font-size: 24px; }
+.log_user						{ border-style: none; border-width: 2px; font-weight: bold; margin-left: 10px; width: 75%; height: 34px; font-size: 20px; background-image: url('Dortmund-32x32/6012.png'); background-repeat:no-repeat; padding-left: 36px; color: #777; font-size: 24px; }
+.log_edits						{ text-align: right; padding-right: 6px; border-style: none; border-width: 2px; font-weight: bold; margin-right: 10px; width: 25%; height: 34px; font-size: 20px; background-repeat:no-repeat; padding-left: 36px; color: #777; font-size: 24px; }
+.log_right						{ border-style: none; border-width: 2px; font-weight: bold; margin-right: 10px; width: 25%; height: 34px; font-size: 20px; background-image: url('Dortmund-32x32/6017.png'); background-repeat:no-repeat; padding-left: 36px; color: #777; font-size: 24px; }
+.log_zoom						{ visibility: hidden; }
+.log_even						{ background-color: #eee; }
+.log_odd						{ background-color: #ccc; }
+.log_detail						{ }
+#counters			{ margin-left:auto; margin-right:auto; position: absolute; top: 10px; left: 60px; }
+#tailscroll{
+overflow: hidden;
+}
+#tailtable {
+width: 100%;
+border-width: 0px;
+border-spacing: 0px;
+}
+
+a:link {color: #666; text-decoration: none; }
+a:hover {color: #000;}
+
+/* used for smooth transition between smallmaps */
+.opacity1			{ opacity: 1; }
+.opacity0			{ opacity: 0; }
+
+.counter_value		{
+	background-color: #FFFFFF;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    color: #444;
+    font-family: monospace;
+    font-size: 35px;
+    margin: 4px;
+    opacity: 0.6;
+    position: relative;
+    top: -44px;
+    left: 40px;
+}
+    
+.counter_img		{
+	background-color: #FFFFFF;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    opacity: 0.6;
+    padding: 4px;
+    
+}
+
+tr {background-color: rgba(255,255,255, 0.5)}
+
+tr.detailed {
+    background-color: rgba(255,120,100, 0.5);
+}
+tr.detailed_old {
+    background-color: rgba(230,230,230, 0.5);
 }
 #summary {
- font-size: 15px;
+ font-size: 16px;
  width: 100%;
  text-align: center;
 
  margin : 0 auto;
 }
-#mapcell {
-    height: 400px;
-    width: 50%;
-}
-#map { height: 100%; width: 100%; }
-/*#map { height: 50%; width: 50%; position: relative; float: left } */
+
 #tail {
 /*    position: relative;
 float: right;
 height: 50%;
 width: 50%;
 */
-       font-size: 12px;
+       font-size: 14px;
 }
 
-#graph_details {
-    /*visibility: hidden;*/
-display: none;
+table {
+    font-size: 11px;
 }
 
-#tailscroll{
-height: 300px;
-overflow: hidden;
-}
-#graph_all_activity { /*height: 50%; position: relative; float: left; width: 50%; clear: both;*/}
-#graph_changesets {/* height: 50%; width : 50%; float: right; position: relative;*/}
-#tailtable {
-width: 100%;
-}
 
 .leaflet-popup-content {
     font-size: 9px;
@@ -63,452 +118,39 @@ width: 100%;
 
 <body>
 
-<script>
+<script src="livechanges.js"></script>
 
-var currentData  = Array();
-var chart_sets = undefined;
-var chart_all = undefined;
-var chart_details = undefined;
-var map = undefined;
-var addedPoints = 0;
-var markerGens = [];
-
-var scale=10;
-var chart_points = 10;
-var timeOffset= 140;
-
-var startTime = new Date().getTime();
-var totalCNode = 0, totalMNode = 0, totalDNode = 0;
-var totalCWay = 0, totalMWay = 0, totalDWay = 0;
-var totalCRel = 0, totalMRel = 0, totalDRel = 0;
-var seenUsers = Array();
-
-function downloadAndRefreshMap() {
-    $.getJSON("get-last-data.py?scale=" + scale, function(data) {
-            currentData = data
-            });
-}
-
-function detailChangeset(cnode, mnode, dnode, cway, mway, dway, crel, mrel, drel) {
-$("#graph_details").show();
-    chart_details.series[0].setData([cnode]);
-    chart_details.series[1].setData([mnode]);
-    chart_details.redraw();
-}
-
-function addBestPoint() {
-    var now = new Date().getTime() / 1000;
-    var bestStamp = now - 140;
-
-    if (currentData == undefined) return;
-    console.log("Parsing data " + currentData["timeseries"].length);
-    var bestPoint = undefined;
-    var firstPoint = 99999999999, lastPoint = 0;
-    for (var i in currentData["timeseries"]) {
-        var thisTime = currentData["timeseries"][i]["time"]
-            firstPoint = Math.min(thisTime, firstPoint)
-            lastPoint = Math.max(lastPoint, thisTime)
-            //        console.log("Data " + currentData["timeseries"][i])
-            if (currentData["timeseries"][i]["time"] > bestStamp) {
-                //            console.log("Trying to display " + bestStamp + " and I have " + 
-                //                currentData["timeseries"][i]);
-                bestPoint = currentData["timeseries"][i];
-                break;
-            }   
-    }
-    if (bestPoint == undefined){
-        console.log("Did not fidn data to graph " + bestStamp + " (" + new Date(bestStamp*1000) + ")");
-        console.log("Found range " + firstPoint +" to " + lastPoint);
-        downloadAndRefreshMap();
-        setTimeout(addBestPoint, 1000);
-    } else {
-        var cnode = bestPoint["cnode"];
-        var mnode = bestPoint["mnode"];
-        var dnode = bestPoint["dnode"];
-        var cway = bestPoint["cway"];
-        var mway = bestPoint["mway"];
-        var dway = bestPoint["dway"];
-        var crel = bestPoint["crel"];
-        var mrel = bestPoint["mrel"];
-        var drel = bestPoint["drel"];
-        totalCNode += cnode; totalMNode += mnode; totalDNode += dnode;
-        totalCWay += cway; totalMWay += mway; totalDWay += dway;
-        totalCRel += crel; totalMRel += mrel; totalDRel += drel;
-        totalChanges = totalCNode+totalMNode+totalDNode+totalCWay+totalMWay+totalDWay+totalCRel+totalMRel+totalDRel;
-
-        minutes = (new Date().getTime() - startTime)/60000;
-
-        /* Draw it */
-        ++addedPoints;
-        {
-            console.info("Setting point " + new Date(bestPoint["time"] * 1000) + " - " +  bestPoint["totalActivity"]);
-            t = bestPoint["time"] * 1000;
-            r =false;
-            s = addedPoints > 10;
-            chart_all.series[0].addPoint([t, bestPoint["cnode"]], r, s);
-            chart_all.series[1].addPoint([t, bestPoint["mnode"]], r, s);
-            chart_all.series[2].addPoint([t, bestPoint["dnode"]], r, s);
-            chart_all.series[3].addPoint([t, bestPoint["cway"]], r, s);
-            chart_all.series[4].addPoint([t, bestPoint["mway"]], r, s);
-            chart_all.series[5].addPoint([t, bestPoint["dway"]], r, s);
-            chart_all.series[6].addPoint([t, bestPoint["crel"]], r, s);
-            chart_all.series[7].addPoint([t, bestPoint["mrel"]], r, s);
-            chart_all.series[8].addPoint([t, bestPoint["drel"]], r, s);
-            chart_all.redraw();
-            //series.addPoint([bestPoint["time"] * 1000, bestPoint["totalActivity"]], true, addedPoints > 10);
-        }
-        {
-            series = chart_sets.series[0];
-            series.addPoint([bestPoint["time"] * 1000, bestPoint["nbChangesets"]], false, addedPoints > 10);
-            chart_sets.redraw();
-
-        }
-        setTimeout(addBestPoint, scale * 1000);
-
-        /* Draw on map */
-        genMarkers = []
-            for (var i in bestPoint["changesets"]) {
-                var changeset = bestPoint["changesets"][i];
-                console.info("Adding changeset " + changeset["minLon"]);
-                var lon = (changeset["minLon"] +  changeset["maxLon"]) / 2
-                    var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
-                    d =  new Date(changeset["time"] * 1000);
-                var u = changeset["user"];
-
-                if (u in seenUsers) {
-                } else {
-                    seenUsers.push(u);
-                }
-                /*detailChangeset(
-                    changeset["cnode"], changeset["mnode"], changeset["dnode"],
-                    changeset["cway"], changeset["mway"], changeset["dway"],
-                    changeset["crel"], changeset["mrel"], changeset["drel"]);
-*/
-                var time = $.format.date(d, "HH:mm:ss"); // d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
-                var content = "User: " + u + " - " + time + "<br />";
-                content += "cnode=" + changeset["cnode"] +  " mnode=" + changeset["mnode"] +  " dnode=" + changeset["dnode"] + "<br />";
-                content += "cway=" + changeset["cway"] +  " mway=" + changeset["mway"] +  " dway=" + changeset["dway"] + "<br />";
-                content += "crel=" + changeset["crel"] +  " mrel=" + changeset["mrel"] +  " drel=" + changeset["drel"] + "<br />";
-                //            var marker = L.popup().setLatLng([lat, lon]).setContent(content).addTo(map);
-                if (changeset["minLat"] != "-90.0") {
-                    var marker = L.marker([lat, lon]).addTo(map);
-                    var poly = L.polygon([[changeset["minLat"], changeset["minLon"]],
-                            [changeset["minLat"], changeset["maxLon"]],
-                            [changeset["maxLat"], changeset["maxLon"]],
-                            [changeset["maxLat"], changeset["minLon"]]]).addTo(map);
-                    genMarkers.push([marker, poly]);
-                } else {
-                    genMarkers.push([]);
-                }
-                var html = "<td width=\"20%\">" + u + "</td>";//<td>" + time + "</td>";
-                html += "<td>" + changeset["cnode"] +  "</td><td>" + changeset["mnode"] +  "</td><td>" + changeset["dnode"] + "</td>";
-                html += "<td>" + changeset["cway"] +  "</td><td>" + changeset["mway"] +  "</td><td>" + changeset["dway"] + "</td>";
-                html += "<td>" + changeset["crel"] +  "</td><td>" + changeset["mrel"] +  "</td><td>" + changeset["drel"] + "</td>";
-                if (changeset["minLat"] != "-90.0") {
-                    html += "<td width=\"20%\">";
-                    html += "<a href=\"#\" onclick=\"var sw= new L.LatLng(" + changeset["minLat"] + "," + changeset["minLon"] + "),ne = new L.LatLng(" + changeset["maxLat"] + "," + changeset["maxLon"] + "), bounds = new L.LatLngBounds(sw, ne); map.fitBounds(bounds);\">Zoom</a> ";
-                    html += "<a href=\"#\" onclick=\"detailChangeset(" +  changeset["cnode"] + "," +  changeset["mnode"] + "," +  changeset["dnode"] + "," +   changeset["cway"] + "," +  changeset["mway"] + "," +  changeset["dway"] + "," +   changeset["crel"] + "," +  changeset["mrel"] + "," +  changeset["drel"] + ")\">Details</a></td>";
-                }   else {
-                    html += "<td>N/A</td>";
-                }
-                $("<tr />").html(html).appendTo("#tailtable");
-                var height = $("#tailscroll").get(0).scrollHeight;
-                $("#tailscroll").animate({
-scrollTop: height
-}, 500);
-
-}
-$("#summary").html("Viewing since " + minutes.toFixed(0) + "minutes, " + totalChanges + " changes by " + seenUsers.length + " users");
-
-markerGens.push(genMarkers);
-if (markerGens.length >= 5) {
-    for (var i in markerGens[0]) {
-        console.info("Removing 1 marker");
-        for (var j in markerGens[0][i]) {
-            map.removeLayer(markerGens[0][i][j]);
-        }
-    }
-    markerGens.reverse();
-    markerGens.pop();
-    markerGens.reverse();
-}
-}
-}
-
-function makeIniData() {
-    data = Array()
-        now = new Date().getTime();
-    for (var i = 0; i < chart_points; i++) {
-        data.push(0);
-    }
-    data.reverse()
-        return data;
-}
-
-
-function makeOldData(now) {
-    data = Array()
-        for (var i = 0; i < chart_points; i++) {
-            var time = now - timeOffset * 1000 - i * scale * 1000
-                data.push([time, 0]);
-        }
-    data.reverse()
-        return data;
-}
-
-$(document).ready(function() {
-        Highcharts.setOptions({
-global: {
-useUTC: false
-}
-});
-
-        downloadAndRefreshMap();
-        var now = new Date().getTime();
-        chart_all = new Highcharts.Chart({
-chart: {
-renderTo: 'graph_all_activity',
-type: 'area',
-marginRight: 10,
-animation : {
-duration : 300, easing : 'linear'
-},
-events: {
-load: function() {
-// First thing very slow ...
-setTimeout(addBestPoint, 2000);
-}
-}
-},
-title: {
-text: 'Live edits (changes in ' + scale + 's)'
-},
-xAxis: {
-type: 'datetime',
-tickPixelInterval: 150
-       },
-yAxis: {
-title: {
-text: 'Value'
-       }, min : 0,
-plotLines: [{
-value: 0,
-       width: 1,
-       color: '#808080'
-           }]
-       },
-tooltip: {
-formatter: function() {
-               return '<b>'+ this.series.name +'</b><br/>'+
-                   Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) +'<br/>'+
-                   Highcharts.numberFormat(this.y, 2);
-           }
-         },
-legend: {
-enabled: true
-        },
-exporting: {
-enabled: false
-           },
-plotOptions : {
-area : {
-stacking : 'normal',
-           marker : {
-enabled : false
-           }
-       }
-              },
-series: [
-{name: 'Created nodes', data : makeOldData(now)},
-{name: 'Modified nodes', data : makeOldData(now)},
-{name: 'Deleted nodes', data : makeOldData(now)},
-{name: 'Created ways', data : makeOldData(now)},
-{name: 'Modified ways', data : makeOldData(now)},
-{name: 'Deleted ways', data : makeOldData(now)},
-{name: 'Created rels', data : makeOldData(now)},
-{name: 'Modified rels', data : makeOldData(now)},
-{name: 'Deleted rels', data : makeOldData(now)},
-
-    ]
-    });
-/*
-   for (var i = 0; i < 9; i++) {
-   var data = makeOldData(now);
-   for (var e in data) {
-   chart_all.series[i].addPoint(data[e], false, true)
-   }
-   chart_all.redraw();
-   }*/
-chart_sets = new Highcharts.Chart({
-chart: {
-renderTo: 'graph_changesets',
-type: 'spline',
-marginRight: 10,
-animation : {
-duration : 300, easing : 'linear'
-},
-
-events: {
-load: function() {
-// First thing very slow ...
-//                        setTimeout(addBestPoint, 2000);
-}
-}
-},
-title: {
-text: 'Live edits (changesets in ' + scale + 's)'
-},
-xAxis: {
-type: 'datetime',
-      tickPixelInterval: 150
-       },
-yAxis: {
-title: {
-text: 'Value'
-       }, min : 0,
-plotLines: [{
-value: 0,
-       width: 1,
-       color: '#808080'
-           }]
-       },
-tooltip: {
-formatter: function() {
-               return '<b>'+ this.series.name +'</b><br/>'+
-                   Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) +'<br/>'+
-                   Highcharts.numberFormat(this.y, 2);
-           }
-         },
-legend: {
-enabled: false
-        },
-exporting: {
-enabled: false
-           },
-
-series: [{
-name: 'Changesets',
-      data: (function() { return makeOldData(now);
-              var data = [];
-              /*                        time = (new Date()).getTime(),
-                                        i;
-
-                                        for (i = -19; i <= 0; i++) {
-                                        data.push({
-x: time + (i*10) * 1000,
-y: 0
-});
-}*/
-              return data;
-              })()
-}]
-});
-
-var mapnik = new L.TileLayer(
-        'http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-attribution: 'OpenStreetMap'
-});
-var omq = new L.TileLayer(
-        'http://otile2.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
-maxZoom: 14,
-attribution: 'OpenStreetMap - MapQuest',
-opacity: 0.4
-});
-var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik } );
-map = new L.Map('map', {
-center: new L.LatLng(0, 0),
-zoom:1,
-/*                layers: [omq, mapnik]*/
-});
-map.addLayer(mapnik);
-map.addControl(control);
-
-
-
-chart_details = new Highcharts.Chart({
-chart: {
-renderTo: 'graph_details',
-type: 'bar',
-},
-title: { text: 'Changeset details' },
-xAxis: { categories : ['Changes'] },
-yAxis: {
-      min : 0
-}, legend: {
-    reversed : true
-},
-
-tooltip: {
-    formater: function() { return ''+ this.series.name +': '+ this.y +''; }
-},
-
-            plotOptions: {
-                series: {
-                    stacking: 'normal'
-                }
-            },
-
-series: [
-{name: 'Created nodes', data :  []},
-{name: 'Modified nodes', data :  []},
-{name: 'Deleted nodes', data :  []},
-{name: 'Created ways', data :  []},
-{name: 'Modified ways', data :  []},
-{name: 'Deleted ways', data :  []},
-{name: 'Created rels', data :  []},
-{name: 'Modified rels', data :  []},
-{name: 'Deleted rels', data :  []},
-]
-});
-
-/*
-   map = L.map('map');
-
-   var mapnik = new L.TileLayer(
-   'http://b.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-attribution: 'OpenStreetMap',
-});
-console.log("Adding ....");
-mapnik.addTo(map);
- */
-//    map.addLayer(mapnik);
-});
-
-</script>
-
-<table id="maintable">
-    <tr>
-        <td rowspan="2" id="mapcell"><div id="map" ></div></td>
-        <td id="graph1cell"><div id="graph_all_activity" style="height: 190px;"></div></td>
-    </tr>
-    <tr>
-        <td id="graph2cell"><div id="graph_changesets" style="height: 190px;"></div></td>
-    </tr>
-    <tr>
-        <td id="tailcell">
-            <div id="tail">
-                <div id="tailhead">
-                    <table width="100%">
-                        <tr>
-                            <th width="20%">User</th>
-                            <th>cnode</th><th>mnode</th><th>dnode</th>
-                            <th>cway</th><th>mway</th><th>dway</th>
-                            <th>crel</th><th>mrel</th><th>drel</th>
-                            <th width="20%">Link</th>
-                        </tr>
-                    </table>
-                </div>
-                <div id="tailscroll">
-                    <table id="tailtable">
-                    </table>
-                </div>
+<div id="maintable">
+    <div id="map" ></div>
+    <div id="middle">
+    	<div id="middle_left">
+            <div id="smallMap1"></div>
+            <div id="smallMap2"></div>
+		    <div id="underSmallMap">
+		    	<div id="currentChangeset" ></div>
+            	<div id="detail"></div>
             </div>
-        </td>
-        <td>   
-                <div id="summary"></div>
-            <div id="graph_details" style="height: 190px;"></div>
-        </td>
-    </tr>
-</table>
+		</div>
+    	<div id="middle_right">
+    		<div id="graph2cell" >
+        	    <div id="graph_edits"></div>
+     		<div id="graph_legend"><img src='Dortmund-32x32/6017.png' height=32 width=32 > / <img src='Dortmund-32x32/full-time.png' height=32 width=32 ></div>
+   		</div>
+	    	<div id="tailcell">
+	            <div id="tail">
+	                <div id="tailscroll">
+    	                <table id="tailtable">
+       		         	</table>
+	            	</div>
+    	        </div>
+       		</div>
+    	</div>	
+    </div>
+    <div id="counters">
+ 		<img src='Dortmund-32x32/6017.png' height=32 width=32 class="counter_img"><div id="count_edits" class="counter_value">0</div>
+    	<img src='Dortmund-32x32/6012.png' height=32 width=32 class="counter_img"><div id="count_users" class="counter_value">0</div>
+	   	<img src='Dortmund-32x32/full-time.png' height=32 width=32 class="counter_img"><div id="count_minutes" class="counter_value">0'</div>
+    </div>
+</div>
 </body>
 </html>
