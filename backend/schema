@@ -18,3 +18,18 @@ CREATE TABLE changeset_content_tag (
 );
 
 create index idx_changeset_content_tag on changeset_content_tag(changeset_id);
+
+
+CREATE TABLE changeset_meta_tag (
+  changeset_id INTEGER REFERENCES changeset(id),
+  key TEXT,
+  value TEXT
+);
+create index idx_changeset_meta_tag on changeset_meta_tag(changeset_id);
+
+create table changeset_meta (
+  changeset_id INTEGER REFERENCES changeset(id),
+  open_at INTEGER,
+  closed_at INTEGER
+);
+
