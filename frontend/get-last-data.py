@@ -1,9 +1,10 @@
 #! /usr/bin/env python
-import sys, time, datetime, math, sqlite3, json, cgi, os
+import sys, time, datetime, math, sqlite3, json, cgi, os, cgitb, urllib2
 
 print "Content-Type: application/json"
 print ""
 
+cgitb.enable()
 data = {}
 ts = []
 
@@ -45,9 +46,21 @@ for time in xrange(now_aligned - max_delay, now_aligned, scale):
         rowTime = int(row["time"])
 #        print "  changeset is at %s" % rowTime
         if rowTime >= time and rowTime < time + scale:
+            lat = row["minLat"]
+            lon = row["minLon"]
+            rowCopy = copy(row)
+            geoData = urllib2.urlopen("http://localhost:9999/reverse?lat=%s&lon=%s" % (lat, lon)).read()
+#            print geoData
+            geocode = json.loads(geoData)
+
+            rowCopy["countries"] = []
+            for match in geocode["matches"]:
+                rowCopy["countries"].append(match["payload"])
+                if len(match["payload"]) == 2:
+                    rowCopy["country"] = match["payload"]
  #           print "Found candidate changeset"
             # Keep this changeset for this time entry
-            e["changesets"].append(copy(row))
+            e["changesets"].append(rowCopy)
 #{ "id" : row["id"], "user": row["user"],
 #                        "minLon" : row["minLon"
             e["cnode"] += int(row["cnode"])

@@ -42,6 +42,19 @@ var addedPoints = 0;
 				
 var playing = true;
 
+function getParameterByName(name)
+{
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(window.location.search);
+    if(results == null)
+        return null;
+    else
+        return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+
 function setButtonsState() {
     if (currentlyDetailedIndex == 0) {
         $("#prevButton").attr('disabled', 'disabled');
@@ -199,7 +212,7 @@ function setDetailedChangeset(id) {
     var drel = changeset["drel"];
  
 
-    $("#currentChangeset").html("Changeset <a target='_blank' href=\"http://osm.org/browse/changeset/" + id + "\">" + id + "</a> by <a target='_blank' href=\"http://osm.org/user/" + user + "\">" + user + "</a>");
+    $("#currentChangeset").html("Changeset <a target='_blank' href=\"http://osm.org/browse/changeset/" + id + "\">" + id + "</a> by <a target='_blank' href=\"http://osm.org/user/" + user + "\">" + user + "</a> " + getFlagImgHtml(changeset));
 	$("#detail").html("<img style='padding: 2px; vertical-align:middle;' src='http://wiki.openstreetmap.org/w/images/b/b5/Mf_node.png' width=20 height=20> "
 		+ cnode + " node"+pluriel(cnode)+" added, " + mnode + " modified, " + dnode+" deleted<br>"
 		+ "<img style='padding: 2px; vertical-align:middle;' src='http://wiki.openstreetmap.org/w/images/6/6a/Mf_way.png' width=20 height=20> "
@@ -212,6 +225,25 @@ function setDetailedChangeset(id) {
     logItem = $(changeset["logItem"]);
     logItem.removeClass("detailed_old");
     logItem.addClass("detailed");
+
+    if ("true" == getParameterByName("changesets_meta")) {
+        $("#meta_detail").html("Loading details ...");
+        $.getJSON("/~zorglub/livechanges/frontend/fetch-changeset-meta.py?id=" + id, 
+          function(data) {
+              var comment = data["tags"]["comment"];
+              var created_by = data["tags"]["created_by"];
+              if (comment != undefined && created_by != undefined) {
+                $("#meta_detail").html("Created with " + created_by + "<br />" + comment);
+              } else if (created_by  !=undefined) {
+                $("#meta_detail").html("Created with " + created_by);
+              } else {
+                $("#meta_detail").html("");
+              }
+          });
+    } else {
+        $("#underSmallMap").css("height", "110px");
+        $("#underSmallMap").css("top", "-108px");
+    }
 }
 
 
@@ -312,6 +344,15 @@ function selectChangeset(dataPoint) {
     }
 }
 
+function getFlagImgHtml(changeset) {
+    if(changeset["country"] != undefined) {
+        return "<img src=\"flags/" + changeset["country"] + ".png\" />";
+    } else {
+        return "<img src=\"flags/unknown.png\" />";
+//     console.log("No flag for changeset");
+    }
+}
+
 /* Main callback, scheduled regularly, to display the next data */
 function nextDataTick(){
     var now = new Date().getTime() / 1000;
@@ -388,7 +429,9 @@ function nextDataTick(){
 				parseInt( changeset["cnode"]) +  parseInt( changeset["mnode"])+ parseInt( changeset["dnode"]) +
 				parseInt( changeset["cway"]) +  parseInt( changeset["mway"])+ parseInt( changeset["dway"]) +
 				parseInt( changeset["crel"]) +  parseInt( changeset["mrel"])+ parseInt( changeset["drel"]);
-			html += "<td class='log_edits'><a target='_blank' href='http://osm.org/browse/changeset/"+changeset["id"]+"'>" + total + "</a></td><td class='log_right'></td>";
+			html += "<td class='log_edits'><a target='_blank' href='http://osm.org/browse/changeset/"+changeset["id"]+"'>" + total + "</a>"
+            html += getFlagImgHtml(changeset);
+            html += "</td><td class='log_right'></td>";
 /*
 			if (changeset["minLat"] != "-90.0") {
 				// Zoom button (on top map)

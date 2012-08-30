@@ -19,14 +19,20 @@ body {
 
 #maintable 	{    width: 100%;    height: 100%;}
 #map 			{    height: 40%;    width: 100%;}
-#currentChangeset	{ font-style:italic; font-weight:bold; text-align: center; }
+#currentChangeset	{ font-style:italic; font-weight:bold; text-align: center; 
+}
+#meta_detail {
+    font-size: 11px;
+}
 
 #middle				{ position: relative; width: 100%; height: 60%; }
 #middle_left			{ height: 100%; width: 50%; float: left;}
 #smallMap1					{ width:100%; height:100%; z-index: 1; opacity: 1; float:left; }
 #smallMap2					{ width:100%; height:100%; z-index: 1; opacity: 0;}
-#underSmallMap						{ width:95%; height: 100px; position:relative; top: -110px; opacity: 0.7; margin-left: auto; margin-right: auto; z-index: 1; padding: 4px 4px 0px 4px; background-color: #FFFFFF; 
--webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; text-align: center; }
+#underSmallMap						{ width:95%; height: 120px; position:relative; top: -128px; opacity: 0.7; margin-left: auto; margin-right: auto; z-index: 1; padding: 4px 4px 0px 4px; background-color: #FFFFFF; 
+-webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; text-align: center; 
+    font-size:  15px;
+}
 #graph_details				{ width:95%; height: 60px; position:relative; top: -70px; opacity: 0.7; margin-left: auto; margin-right: auto; z-index: 2; }
 #middle_right			{ height: 100%; width: 50%; float: left;}
 #graph2cell					{ height: 40%;} /* opacity: 0.5; }*/
@@ -136,6 +142,7 @@ table {
 		    <div id="underSmallMap">
 		    	<div id="currentChangeset" ></div>
             	<div id="detail"></div>
+            	<div id="meta_detail"></div>
             </div>
 		</div>
     	<div id="middle_right">
