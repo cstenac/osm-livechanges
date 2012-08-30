@@ -27,6 +27,7 @@ var log_even = true;
 // Top map
 var map = undefined;
 var allMarkers = [];
+var markersGroup = new L.LayerGroup();
 var greenIcon = L.icon({
         iconAnchor: [15, 30],iconUrl : 'http://www.iosm.eu/live/lwt_map_icons/green/O.png'});
 var redIcon = L.icon({
@@ -298,7 +299,7 @@ function updateTopMap(dataPoint) {
 	        marker.setIcon(greenIcon);
 			marker.setOpacity(0.8);
             allMarkers.push(marker);
-            marker.addTo(map);
+            markersGroup.addLayer(marker);
         }
     }
     /* The selected one last, so as to get it on top */
@@ -311,7 +312,7 @@ function updateTopMap(dataPoint) {
 	        marker.setIcon(redIcon);
 			marker.setOpacity(1);
             allMarkers.push(marker);
-            marker.addTo(map);
+            markersGroup.addLayer(marker);
  
         }
     }
@@ -328,7 +329,7 @@ function updateTopMap(dataPoint) {
     if (allMarkers.length > 100){
         allMarkers.reverse();
         for (var i = 100; i < allMarkers.length; i++){
-            map.removeLayer(allMarkers[i]);
+            markersGroup.removeLayer(allMarkers[i]);
         }
         allMarkers.splice(100, allMarkers.length - 100);
     }
@@ -615,12 +616,13 @@ formatter: function() {
         heatLayer = new L.TileLayer.HeatCanvas("Heatmap", map, {},
                     { 'step' : 0.2, 'degree' : L.TileLayer.HeatCanvas.LINEAR, 'opacity': 0.4});
 
-        var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik , "NASA Blue Marble @ Mapbox" : bluemarble}, { "Heat Map" : heatLayer } );
+        var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik , "NASA Blue Marble @ Mapbox" : bluemarble}, { "Heat Map" : heatLayer, "Markers" : markersGroup } );
         map = new L.Map('map', {
             center: new L.LatLng(25, 0),
             zoom:3,
         });
         map.addLayer(omq);
+        map.addLayer(markersGroup);
         map.addControl(control)
     }
     topMapReady  = true; // for the moment
