@@ -22,7 +22,8 @@ if found:
         data["tags"][row["key"]] = row["value"];    
 else:
     # Request the API, and save in DB
-    xml = etree.parse("http://openstreetmap.org/api/0.6/changeset/%s?contact=clement.stenac@gmail.com&client=live.openstreetmap.fr" % changesetId)
+#    xml = etree.parse("http://openstreetmap.org/api/0.6/changeset/%s?contact=clement.stenac@gmail.com&client=live.openstreetmap.fr" % changesetId)
+    xml = etree.parse("http://api.openstreetmap.fr/api/0.6/changeset/%s?contact=clement.stenac@gmail.com&client=live.openstreetmap.fr" % changesetId)
     data["requested"] = True
 
     c.execute("INSERT INTO changeset_meta (changeset_id) VALUES(?)",(changesetId,));
