@@ -31,6 +31,7 @@ var greenIcon = L.icon({
         iconAnchor: [15, 30],iconUrl : 'http://www.iosm.eu/live/lwt_map_icons/green/O.png'});
 var redIcon = L.icon({
         iconAnchor: [15, 30],iconUrl : 'http://www.iosm.eu/live/lwt_map_icons/brown/O.png'});
+var heatLayer = undefined;
 
 // Bottom map
 var activeMap = Array();
@@ -197,7 +198,10 @@ function setDetailedChangeset(id) {
 	
     var bounds = new L.LatLngBounds(sw, ne);
 	inm.fitBounds(bounds);
-	map.panTo(ce); // pan the world map on this changeset location
+    
+    if (!map.hasLayer(heatLayer)) {
+    	map.panTo(ce); // pan the world map on this changeset location
+    }
 
     // update changeset details
 	var user = changeset["user"];
@@ -311,6 +315,14 @@ function updateTopMap(dataPoint) {
  
         }
     }
+    /* Bring the heat, baby ! */
+    for (var i in dataPoint["changesets"]) {
+        if (changeset["minLat"] != "-90.0") {
+    		var lon = (changeset["minLon"] +  changeset["maxLon"]) / 2
+    		var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
+            heatLayer.pushData(lat, lon, 10);
+        }
+    }
 
     /* Remove markers above 100 */
     if (allMarkers.length > 100){
@@ -363,6 +375,10 @@ function nextDataTick(){
         console.log("No more good data for " + new Date(bestStamp*1000) + ")");
 //        console.log("Found range " + firstPoint +" to " + lastPoint);
         downloadData(); // downloadData will reschedule the tick
+
+        /* We only redraw the heatLayer each download, because it's slow */
+        heatLayer._redraw();
+
         return;
     }
         
@@ -596,7 +612,10 @@ formatter: function() {
         });
         var bluemarble = new L.layerGroup([nasa, world]);
 
-        var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik , "NASA Blue Marble @ Mapbox" : bluemarble} );
+        heatLayer = new L.TileLayer.HeatCanvas("Heatmap", map, {},
+                    { 'step' : 0.2, 'degree' : L.TileLayer.HeatCanvas.LINEAR, 'opacity': 0.4});
+
+        var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik , "NASA Blue Marble @ Mapbox" : bluemarble}, { "Heat Map" : heatLayer } );
         map = new L.Map('map', {
             center: new L.LatLng(25, 0),
             zoom:3,

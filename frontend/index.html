@@ -6,6 +6,8 @@
 <script src="jquery.scrollTo-min.js"></script>
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.css" />
 <script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>
+<script src="heatcanvas.js"></script>
+<script src="heatcanvas-leaflet.js"></script>
 <script src="jquery.dateFormat-1.0.js"></script>
 
 
@@ -24,6 +26,73 @@ body {
 #meta_detail {
     font-size: 11px;
 }
+
+/* ***************** Counters ***************** */
+
+div.counter_container {
+    position: relative;
+}
+
+div.counter_tooltip em {
+    display: none;
+}
+
+div.counter_tooltip: hover {
+    border: 0; 
+    position: relative; 
+    z-index: 500; 
+    text-decoration:none;
+}
+div.counter_tooltip:hover em {
+    font-style: normal; 
+    display: block; 
+    position: absolute;
+    top: 0px; 
+    left: 160px; 
+    color: #000; 
+    border: 1px solid #bbb; 
+/*    background: #aaa; */
+    width:210px;
+	background-color: #FFFFFF;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    opacity: 0.6;
+    padding: 4px;
+ 
+}
+div.counter_tooltip:hover em span {
+/*    position: absolute; */
+    top: -7px; 
+    left: 15px;
+    height: 100px; 
+    width: 100px; 
+    /*background: transparent url(image-infobulle.gif); */
+    margin:0; 
+    padding: 0; 
+    border: 0;
+}
+.counter_value		{
+	background-color: #FFFFFF;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    color: #444;
+    font-family: monospace;
+    font-size: 35px;
+    margin: 4px;
+    opacity: 0.6;
+    position: relative;
+    top: -44px;
+    left: 40px;
+    max-width: 110px;
+}
+    
+.counter_img		{
+	background-color: #FFFFFF;
+    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
+    opacity: 0.6;
+    padding: 4px;
+    
+}
+
+
 
 #middle				{ position: relative; width: 100%; height: 60%; }
 #middle_left			{ height: 100%; width: 50%; float: left;}
@@ -70,27 +139,6 @@ a:hover {color: #000;}
 /* used for smooth transition between smallmaps */
 .opacity1			{ opacity: 1; }
 .opacity0			{ opacity: 0; }
-
-.counter_value		{
-	background-color: #FFFFFF;
-    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
-    color: #444;
-    font-family: monospace;
-    font-size: 35px;
-    margin: 4px;
-    opacity: 0.6;
-    position: relative;
-    top: -44px;
-    left: 40px;
-}
-    
-.counter_img		{
-	background-color: #FFFFFF;
-    -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px;
-    opacity: 0.6;
-    padding: 4px;
-    
-}
 
 tr {background-color: rgba(255,255,255, 0.5)}
 
@@ -168,9 +216,27 @@ table {
     	</div>	
     </div>
     <div id="counters">
- 		<img src='i/6017.png' height=32 width=32 class="counter_img"><div id="count_edits" class="counter_value">0</div>
-    	<img src='i/6012.png' height=32 width=32 class="counter_img"><div id="count_users" class="counter_value">0</div>
-	   	<img src='i/full-time.png' height=32 width=32 class="counter_img"><div id="count_minutes" class="counter_value">0'</div>
+        <div class="counter_container">
+     		<div class="counter_tooltip">
+                <img src='i/6017.png' height=32 width=32 class="counter_img">
+                <em><span> ... edits were made to OpenStreetMap, by</span></em>
+            </div>
+            <div id="count_edits" class="counter_value">0</div>
+        </div>
+        <div class="counter_container">
+            <div class="counter_tooltip">
+            	<img src='i/6012.png' height=32 width=32 class="counter_img">
+                <em><span>contributors, in the last ...</span></em>
+            </div>
+            <div id="count_users" class="counter_value">0</div>
+        </div>
+        <div class="counter_container">
+            <div class="counter_tooltip">
+        	   	<img src='i/full-time.png' height=32 width=32 class="counter_img">
+                <em><span>minutes</span></em>
+            </div>
+            <div id="count_minutes" class="counter_value">0'</div>
+        </div>
     </div>
 </div>
 </body>
