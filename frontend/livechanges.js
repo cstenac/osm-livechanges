@@ -663,3 +663,9 @@ formatter: function() {
     setButtonHandlers();
     checkStartup();
 });
+
+function showAbout(){
+  $("#about").lightbox_me({
+        centered:true
+  });
+}

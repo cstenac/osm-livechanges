@@ -9,7 +9,7 @@
 <script src="heatcanvas.js"></script>
 <script src="heatcanvas-leaflet.js"></script>
 <script src="jquery.dateFormat-1.0.js"></script>
-
+<script src="jquery.lightbox_me.js"></script>
 
 <style>
 body {
@@ -17,6 +17,27 @@ body {
     overflow: hidden;
     margin: 0px;
     font-family: Arial;
+}
+
+#about {
+        -moz-border-radius: 6px;
+        -webkit-border-radius: 6px;
+        -webkit-box-shadow: rgba(0,0,0,.6) 0px 2px 12px;
+        -moz-box-shadow:  rgba(0,0,0,.6) 0px 2px 12px;;
+        padding: 14px 22px;
+        width: 400px;
+        position: relative;
+        display: none;
+        border: 1px solid #536376;
+        background-color:#fff;
+}
+#close_x { 
+/*     width: 24px; height: 24px;*/
+    overflow: hidden; line-height: 1000px;
+    display: block;
+      position: absolute; top: 5px; right: 5px;
+      background-position: -387px -102px;
+    background: url(close-button.gif) no-repeat;
 }
 
 #maintable 	{    width: 100%;    height: 100%;}
@@ -205,13 +226,17 @@ table {
        		         	</table>
 	            	</div>
     	        </div>
+                <div style="float: right">
+                    <a href="#" onclick="showAbout();">About this</a>
+                </div>
+ 
     	    	<div id="tailbuttons">
                     <input type="button" value="Prev" id="prevButton" />
                     <input type="button" value="Play" id="playButton" />
                     <input type="button" value="Pause" id="pauseButton" />
                     <input type="button" value="Next" id="nextButton" />
                 </div>
-       		</div>
+      		</div>
 
     	</div>	
     </div>
@@ -239,5 +264,18 @@ table {
         </div>
     </div>
 </div>
+
+<div id="about">
+<h3>OpenStreetMap live edits</h3>
+
+<ul>
+  <li>Map data CC-by-SA by <a href="http://www.openstreetmap.org">The OpenStreetMap project</a></li>
+  <li>Some map tiles by <a href="http://www.mapquest.com">MapQuest</a></li>
+</ul>
+
+Source code for the osm-livechanges project can be found on <a href="https://github.com/cstenac/osm-livechanges">Github</a>
+<a id="close_x" class="close sprited" href="#">close</a>
+</div>
+
 </body>
 </html>
