@@ -245,7 +245,7 @@ if (dbg) console.warn("Changeset to zoom on not found !");
     logItem.removeClass("detailed_old");
     logItem.addClass("detailed");
 
-    if (!("false" == getParameterByName("changesets_meta"))) {
+    if (("true" == getParameterByName("changesets_meta"))) {
         $("#meta_detail").html("Loading details ...");
         $.getJSON("/~zorglub/livechanges/frontend/fetch-changeset-meta.py?id=" + id, 
           function(data) {
@@ -288,7 +288,6 @@ function getBestPoint(now) {
 //                    console.log("Data " + currentData["timeseries"][i])
             if (currentData["timeseries"][i]["time"] > bestStamp) {
 if (dbg) console.log("Trying to display " + bestStamp + " and I have " + 
-                                currentData["timeseries"][i]);
                 bestPoint = currentData["timeseries"][i];
                 break;
             }   
@@ -364,7 +363,7 @@ function selectChangeset(dataPoint) {
 		if (changeset["maxLat"]-changeset["minLat"] != 180) { 
 		    if (parseInt(i) +1 == dataPoint["changesets"].length) {
 			    if (changeset["minLat"] != "-90.0") {
-if (dbg) console.log("Found changeset to select");
+                    if (dbg) console.log("Found changeset to select");
                     changeset["selected"] = true;
                     return;
                 }
