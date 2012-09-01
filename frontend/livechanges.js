@@ -197,7 +197,9 @@ function setDetailedChangeset(id) {
 		ne.lon += 0.001;
 	}
 	
+    sw.lat -= 0.002;
     var bounds = new L.LatLngBounds(sw, ne);
+    /* Decenter a bit, to accomodate for the details box */
 	inm.fitBounds(bounds);
     
     if (!map.hasLayer(heatLayer)) {
@@ -231,7 +233,7 @@ function setDetailedChangeset(id) {
     logItem.removeClass("detailed_old");
     logItem.addClass("detailed");
 
-    if ("true" == getParameterByName("changesets_meta")) {
+    if (!("false" == getParameterByName("changesets_meta"))) {
         $("#meta_detail").html("Loading details ...");
         $.getJSON("/~zorglub/livechanges/frontend/fetch-changeset-meta.py?id=" + id, 
           function(data) {
