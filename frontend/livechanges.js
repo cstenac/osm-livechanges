@@ -447,8 +447,8 @@ function nextDataTick(){
 				parseInt( changeset["cway"]) +  parseInt( changeset["mway"])+ parseInt( changeset["dway"]) +
 				parseInt( changeset["crel"]) +  parseInt( changeset["mrel"])+ parseInt( changeset["drel"]);
 			html += "<td class='log_edits'><a target='_blank' href='http://osm.org/browse/changeset/"+changeset["id"]+"'>" + total + "</a>"
-            html += getFlagImgHtml(changeset);
             html += "</td><td class='log_right'></td>";
+            html += "<td>" + getFlagImgHtml(changeset) + "</td>";
 /*
 			if (changeset["minLat"] != "-90.0") {
 				// Zoom button (on top map)
