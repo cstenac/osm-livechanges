@@ -60,21 +60,28 @@ function getParameterByName(name)
 function setButtonsState() {
     if (currentlyDetailedIndex == 0) {
         $("#prevButton").attr('disabled', 'disabled');
+    	$("#prevButton").addClass("icon_disabled");
     } else if (allChangesets.length > 0) {
         $("#prevButton").removeAttr("disabled");
+    	$("#prevButton").removeClass("icon_disabled");
     }
     if (currentlyDetailedIndex >= allChangesets.length - 1) {
         $("#nextButton").attr('disabled', 'disabled');
+    	$("#nextButton").addClass(".icon_disabled");
     } else if (allChangesets.length > 0) {
         $("#nextButton").removeAttr("disabled");
+    	$("#nextButton").removeClass("icon_disabled");
     }
     if (playing) {
         $("#pauseButton").removeAttr("disabled");
+    	$("#pauseButton").removeClass("icon_disabled");
         $("#playButton").attr('disabled', 'disabled');
+    	$("#playButton").addClass("icon_disabled");
     } else {
         $("#pauseButton").attr('disabled', 'disabled');
+    	$("#pauseButton").addClass("icon_disabled");
         $("#playButton").removeAttr("disabled");
- 
+    	$("#playButton").removeClass("icon_disabled");
     }
 }
 
@@ -181,7 +188,7 @@ function setDetailedChangeset(id) {
 	// add it on the map
 	poly.addTo(inm);
     inactiveMap["poly"] = poly;
-							
+	
 	// margins around the bbox polygon
 	var width = (changeset["maxLon"]-changeset["minLon"])/2;
 	var height = (changeset["maxLat"]-changeset["minLat"])/2;
@@ -202,9 +209,9 @@ function setDetailedChangeset(id) {
     /* Decenter a bit, to accomodate for the details box */
 	inm.fitBounds(bounds);
     
-    if (!map.hasLayer(heatLayer)) {
+    // if (!map.hasLayer(heatLayer)) {
     	map.panTo(ce); // pan the world map on this changeset location
-    }
+    // }
 
     // update changeset details
 	var user = changeset["user"];
@@ -439,7 +446,7 @@ function nextDataTick(){
 			var time = $.format.date(d, "HH:mm:ss"); // d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
 
 
-            var html = "<td class='log_time'>" + time + "</td><td class='log_user'><a target='_blank' href='http://osm.org/user/"+u+"'>" + u + "</a></td>";
+            var html = "<td class='log_time'><a href=\"#\" onClick=\"setDetailedChangeset("+changeset["id"]+");return(false)\">" + time + "</a></td><td class='log_user'><a target='_blank' href='http://osm.org/user/"+u+"'>" + u + "</a></td>";
 	/*                html += "<td class='log_cnode'>" + changeset["cnode"] +  "</td><td class='log_mnode'>" + changeset["mnode"] +  "</td><td class='dog_cnode'>" + changeset["dnode"] + "</td>";
 					html += "<td class='log_cway'>" + changeset["cway"] +  "</td><td class='log_mway'>" + changeset["mway"] +  "</td><td class='log_dway'>" + changeset["dway"] + "</td>";
 					html += "<td class='log_crel'>" + changeset["crel"] +  "</td><td class='log_mrel'>" + changeset["mrel"] +  "</td><td class='log_drel'>" + changeset["drel"] + "</td>";
@@ -616,7 +623,7 @@ formatter: function() {
         var bluemarble = new L.layerGroup([nasa, world]);
 
         heatLayer = new L.TileLayer.HeatCanvas("Heatmap", map, {},
-                    { 'step' : 0.2, 'degree' : L.TileLayer.HeatCanvas.LINEAR, 'opacity': 0.4});
+                    { 'step' : 0.2, 'degree' : L.TileLayer.HeatCanvas.QUAD, 'opacity': 0.4});
 
         var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik , "NASA Blue Marble @ Mapbox" : bluemarble}, { "Heat Map" : heatLayer, "Markers" : markersGroup } );
         map = new L.Map('map', {

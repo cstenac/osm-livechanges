@@ -114,8 +114,9 @@ div.counter_tooltip:hover em span {
 }
 
 
+#about { float: left; }
 
-#middle				{ position: relative; width: 100%; height: 60%; }
+#middle				{ position: relative; width: 100%; height: 60%; top: -40px; }
 #middle_left			{ height: 100%; width: 50%; float: left;}
 #smallMap1					{ width:100%; height:100%; z-index: 1; opacity: 1; float:left; }
 #smallMap2					{ width:100%; height:100%; z-index: 1; opacity: 0;}
@@ -125,17 +126,24 @@ div.counter_tooltip:hover em span {
 }
 #graph_details				{ width:95%; height: 60px; position:relative; top: -70px; opacity: 0.7; margin-left: auto; margin-right: auto; z-index: 2; }
 #middle_right			{ height: 100%; width: 50%; float: left;}
-#graph2cell					{ height: 40%;} /* opacity: 0.5; }*/
+#graph2cell					{ height: 40%; } 
 #graph_legend 					{ display: none;width: 50%; text-align: center; font-size: 36px; position: absolute; bottom: 30px; }
 #graph_edits					{ /*margin-left:auto; margin-right:auto;*/ height: 100%; /*position: relative; top: 0px;*/ }
 #tailcell					{ height: 60%; width: 50%; clear: both; position: absolute; bottom: 0px; z-index: 0;}
-#tail { height: 90%;}
+#tail { height: 100%;}
 #tailbuttons {
-    height:10%;
+    height:40px;
     text-align: center;
+    z-index:1;
+    background-color: rgba(255,255,255,0.5);
+    position: relative;
+    top: -40px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 180px
 }
-.log_time						{ border-style: none; border-width: 2px; font-weight: bold; margin-left: 10px; padding-right: 10px; height: 34px; font-size: 20px; background-repeat:no-repeat; color: #777; font-size: 24px; }
-.log_user						{ border-style: none; border-width: 2px; font-weight: bold; margin-left: 10px; width: 75%; height: 34px; font-size: 20px; background-image: url('i/6012.png'); background-repeat:no-repeat; padding-left: 36px; color: #777; font-size: 24px; }
+.log_time						{ border-style: none; border-width: 2px; font-weight: bold; margin-left: 10px; font-size: 24px; height: 34px; background-repeat:no-repeat; color: #777; padding-right: 10px;  }
+.log_user						{ border-style: none; border-width: 2px; font-weight: bold; margin-left: 10px; font-size: 24px; height: 34px; background-repeat:no-repeat; color: #777; padding-left: 36px;  background-image: url('i/6012.png'); width: 75%; }
 .log_edits						{ text-align: right; padding-right: 6px; border-style: none; border-width: 2px; font-weight: bold; margin-right: 10px; width: 25%; height: 34px; font-size: 20px; background-repeat:no-repeat; padding-left: 36px; color: #777; font-size: 24px; }
 .log_right						{ border-style: none; border-width: 2px; font-weight: bold; margin-right: 10px; width: 25%; height: 34px; font-size: 20px; background-image: url('i/6017.png'); background-repeat:no-repeat; padding-left: 36px; color: #777; font-size: 24px; }
 .log_zoom						{ visibility: hidden; }
@@ -155,11 +163,15 @@ border-spacing: 0px;
 }
 
 a:link {color: #666; text-decoration: none; }
-a:hover {color: #000;}
+a:visited {color: #666; text-decoration: none; }
+a:hover {color: #000; text-decoration: underline; }
 
 /* used for smooth transition between smallmaps */
 .opacity1			{ opacity: 1; }
 .opacity0			{ opacity: 0; }
+
+.icon_disabled { opacity: 0.5; }
+.icon_enabled  { opacity: 1 }
 
 tr {background-color: rgba(255,255,255, 0.5)}
 
@@ -198,12 +210,27 @@ table {
 
 </head>
 
-<body>
+<body onload="showAbout();">
 
 <script src="livechanges.js"></script>
 
 <div id="maintable">
     <div id="map" ></div>
+
+    	    	<div id="tailbuttons">
+
+<!--
+                    <input type="button" value="Prev" id="prevButton" />
+                    <input type="button" value="Play" id="playButton" />
+                    <input type="button" value="Pause" id="pauseButton" />
+                    <input type="button" value="Next" id="nextButton" />
+-->
+<img width=40 height=40 src='i/Previous.png' id="prevButton" />
+<img width=40 height=40 src='i/Play.png' id="playButton" />
+<img width=40 height=40 src='i/Pause.png' id="pauseButton" />
+<img width=40 height=40 src='i/Next.png' id="nextButton" />
+                </div>
+
     <div id="middle">
     	<div id="middle_left">
             <div id="smallMap1"></div>
@@ -226,16 +253,7 @@ table {
        		         	</table>
 	            	</div>
     	        </div>
-                <div style="float: right">
-                    <a href="#" onclick="showAbout();">About this</a>
-                </div>
  
-    	    	<div id="tailbuttons">
-                    <input type="button" value="Prev" id="prevButton" />
-                    <input type="button" value="Play" id="playButton" />
-                    <input type="button" value="Pause" id="pauseButton" />
-                    <input type="button" value="Next" id="nextButton" />
-                </div>
       		</div>
 
     	</div>	
@@ -266,7 +284,10 @@ table {
 </div>
 
 <div id="about">
-<h3>OpenStreetMap live edits</h3>
+<center>
+<img src="http://www.openstreetmap.org/assets/osm_logo-bd070644a6d1e2ea4db5d1893091b1e7.png">
+<h2>OpenStreetMap live edits</h2>
+</center>
 
 <ul>
   <li>Map data CC-by-SA by <a href="http://www.openstreetmap.org">The OpenStreetMap project</a></li>
