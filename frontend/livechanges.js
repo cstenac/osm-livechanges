@@ -301,6 +301,7 @@ function updateTopMap(dataPoint) {
     for (var i in allMarkers){
         allMarkers[i].setIcon(greenIcon);
         allMarkers[i].setOpacity(0.5);
+        allMarkers[i].setZIndexOffset(1);
     }
 
     /* First the non selected ones */
@@ -312,6 +313,7 @@ function updateTopMap(dataPoint) {
 		    var marker = L.marker([lat, lon]);
 	        marker.setIcon(greenIcon);
 			marker.setOpacity(0.8);
+			marker.setZIndexOffset(2);
             allMarkers.push(marker);
             markersGroup.addLayer(marker);
         }
@@ -325,9 +327,9 @@ function updateTopMap(dataPoint) {
 		    var marker = L.marker([lat, lon]);
 	        marker.setIcon(redIcon);
 			marker.setOpacity(1);
+			marker.setZIndexOffset(1000); // selected = always on top !
             allMarkers.push(marker);
             markersGroup.addLayer(marker);
- 
         }
     }
     /* Bring the heat, baby ! */
