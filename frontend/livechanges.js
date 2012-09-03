@@ -1,6 +1,9 @@
 // vim: ts=4 sw=4 et
 // this code needs jquery.js leaflet.js and highcharts.js
 
+// debug mode ?
+var	dbg = false;
+
 // Startup code
 var jQueryReady = false;
 var highChartsReady = false;
@@ -102,12 +105,12 @@ function setButtonHandlers() {
             return;
         }
         playing = false;
-        console.info("Going from " + currentlyDetailedIndex);
+if (dbg) console.info("Going from " + currentlyDetailedIndex);
         var nextIdx = parseInt(currentlyDetailedIndex) + 1;
-        console.info("Going from " + currentlyDetailedIndex + " to " + nextIdx);
+if (dbg) console.info("Going from " + currentlyDetailedIndex + " to " + nextIdx);
         next = allChangesets[nextIdx];
-        console.info("Got "  + next);
-        setDetailedChangeset(next["id"]);
+if (dbg) console.info("Got "  + next);
+        setDetailedChangeset(next["id"],false);
         $("#tailscroll").scrollTo(next["logItem"]);
         setButtonsState();
      });
@@ -119,9 +122,9 @@ function setButtonHandlers() {
             return;
         }
         playing = false;
-        console.info("PREV Going from " + currentlyDetailedIndex);
+if (dbg) console.info("PREV Going from " + currentlyDetailedIndex);
         next = allChangesets[parseInt(currentlyDetailedIndex) - 1];
-        setDetailedChangeset(next["id"]);
+        setDetailedChangeset(next["id"],false);
         $("#tailscroll").scrollTo(next["logItem"]);
         setButtonsState();
      });
@@ -141,7 +144,7 @@ function onNextDataReady() {
 function downloadData() {
     $.getJSON("/~zorglub/livechanges/frontend/get-last-data.py?scale=" + scale,
         function(data) {
-            console.log("Data is ready");
+if (dbg) console.log("Data is ready");
             currentData = data;
             onNextDataReady();
         }
@@ -154,8 +157,8 @@ function downloadData() {
 	};
 	
 
-function setDetailedChangeset(id) {
-    console.log("Setting detailed changset " + id);
+function setDetailedChangeset(id,play) {
+if (dbg) console.log("Setting detailed changset " + id);
 	/* Mark all ones as unselected in the log */
 	$("#tailtable tr.detailed").each(function(e) { $(this).removeClass("detailed"); $(this).addClass("detailed_old");});
 
@@ -165,11 +168,13 @@ function setDetailedChangeset(id) {
             changeset = allChangesets[chg];
             currentlyDetailedId = id;
             currentlyDetailedIndex = chg;
+            playing=play;
+            setButtonsState();
             break;
         }
     }
     if (changeset == undefined) {
-        console.warn("Changeset to zoom on not found !");    
+if (dbg) console.warn("Changeset to zoom on not found !");    
         return;
     }
 
@@ -282,7 +287,7 @@ function getBestPoint(now) {
             lastPoint = Math.max(lastPoint, thisTime)
 //                    console.log("Data " + currentData["timeseries"][i])
             if (currentData["timeseries"][i]["time"] > bestStamp) {
-                            console.log("Trying to display " + bestStamp + " and I have " + 
+if (dbg) console.log("Trying to display " + bestStamp + " and I have " + 
                                 currentData["timeseries"][i]);
                 bestPoint = currentData["timeseries"][i];
                 break;
@@ -357,7 +362,7 @@ function selectChangeset(dataPoint) {
 		if (changeset["maxLat"]-changeset["minLat"] != 180) { 
 		    if (parseInt(i) +1 == dataPoint["changesets"].length) {
 			    if (changeset["minLat"] != "-90.0") {
-                    console.log("Found changeset to select");
+if (dbg) console.log("Found changeset to select");
                     changeset["selected"] = true;
                     return;
                 }
@@ -382,7 +387,7 @@ function nextDataTick(){
 
     if (bestPoint == undefined) {
         var bestStamp = now - 140;
-        console.log("No more good data for " + new Date(bestStamp*1000) + ")");
+if (dbg) console.log("No more good data for " + new Date(bestStamp*1000) + ")");
 //        console.log("Found range " + firstPoint +" to " + lastPoint);
         downloadData(); // downloadData will reschedule the tick
 
@@ -446,7 +451,7 @@ function nextDataTick(){
 			var time = $.format.date(d, "HH:mm:ss"); // d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()
 
 
-            var html = "<td class='log_time'><a href=\"#\" onClick=\"setDetailedChangeset("+changeset["id"]+");return(false)\">" + time + "</a></td><td class='log_user'><a target='_blank' href='http://osm.org/user/"+u+"'>" + u + "</a></td>";
+            var html = "<td class='log_time'><a href=\"#\" onClick=\"setDetailedChangeset("+changeset["id"]+",false);return(false)\">" + time + "</a></td><td class='log_user'><a target='_blank' href='http://osm.org/user/"+u+"'>" + u + "</a></td>";
 	/*                html += "<td class='log_cnode'>" + changeset["cnode"] +  "</td><td class='log_mnode'>" + changeset["mnode"] +  "</td><td class='dog_cnode'>" + changeset["dnode"] + "</td>";
 					html += "<td class='log_cway'>" + changeset["cway"] +  "</td><td class='log_mway'>" + changeset["mway"] +  "</td><td class='log_dway'>" + changeset["dway"] + "</td>";
 					html += "<td class='log_crel'>" + changeset["crel"] +  "</td><td class='log_mrel'>" + changeset["mrel"] +  "</td><td class='log_drel'>" + changeset["drel"] + "</td>";
@@ -489,7 +494,7 @@ function nextDataTick(){
     for (var i in bestPoint["changesets"]) {
         var changeset = bestPoint["changesets"][i];
         if (changeset["selected"]) {
-            setDetailedChangeset(changeset["id"]);
+            setDetailedChangeset(changeset["id"],true);
         }
     }
 
