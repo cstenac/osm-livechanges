@@ -285,9 +285,8 @@ function getBestPoint(now) {
         var thisTime = currentData["timeseries"][i]["time"]
             firstPoint = Math.min(thisTime, firstPoint)
             lastPoint = Math.max(lastPoint, thisTime)
-//                    console.log("Data " + currentData["timeseries"][i])
             if (currentData["timeseries"][i]["time"] > bestStamp) {
-if (dbg) console.log("Trying to display " + bestStamp + " and I have " + 
+                if (dbg) console.log("Trying to display " + bestStamp + " and found");
                 bestPoint = currentData["timeseries"][i];
                 break;
             }   
