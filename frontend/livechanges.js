@@ -393,7 +393,9 @@ if (dbg) console.log("No more good data for " + new Date(bestStamp*1000) + ")");
         downloadData(); // downloadData will reschedule the tick
 
         /* We only redraw the heatLayer each download, because it's slow */
-        heatLayer._redraw();
+        if (map.hasLayer(heatLayer)) {
+            heatLayer._redraw();
+        }
 
         return;
     }
