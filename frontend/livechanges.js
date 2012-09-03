@@ -300,7 +300,7 @@ function updateTopMap(dataPoint) {
     /* Lower the opacity of previous markers */
     for (var i in allMarkers){
         allMarkers[i].setIcon(greenIcon);
-        allMarkers[i].setOpacity(0.5);
+        allMarkers[i].setOpacity(0.4);
         allMarkers[i].setZIndexOffset(1);
     }
 
@@ -310,7 +310,7 @@ function updateTopMap(dataPoint) {
         if (!changeset["selected"] && changeset["minLat"] != "-90.0") {
     		var lon = (changeset["minLon"] +  changeset["maxLon"]) / 2
     		var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
-		    var marker = L.marker([lat, lon]);
+		    var marker = L.marker([lat, lon], {clickable: false});
 	        marker.setIcon(greenIcon);
 			marker.setOpacity(0.8);
 			marker.setZIndexOffset(2);
@@ -324,7 +324,7 @@ function updateTopMap(dataPoint) {
         if (changeset["selected"]) {
     		var lon = (changeset["minLon"] +  changeset["maxLon"]) / 2
     		var lat = (changeset["minLat"] +  changeset["maxLat"]) /2
-		    var marker = L.marker([lat, lon]);
+		    var marker = L.marker([lat, lon], {clickable: false});
 	        marker.setIcon(redIcon);
 			marker.setOpacity(1);
 			marker.setZIndexOffset(1000); // selected = always on top !
