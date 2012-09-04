@@ -34,11 +34,12 @@ body {
 }
 #close_x { 
 /*     width: 24px; height: 24px;*/
-    overflow: hidden; line-height: 1000px;
+    overflow: hidden; /* line-height: 1000px; */
     display: block;
       position: absolute; top: 5px; right: 5px;
       background-position: -387px -102px;
     background: url(close-button.gif) no-repeat;
+    color: transparent;
 }
 
 #maintable 	{    width: 100%;    height: 100%;}
@@ -285,6 +286,7 @@ table {
 </div>
 
 <div id="about">
+<a id="close_x" class="close sprited" href="#">close</a>
 <center>
 <img src="http://www.openstreetmap.org/assets/osm_logo-bd070644a6d1e2ea4db5d1893091b1e7.png">
 <h2>OpenStreetMap live edits</h2>
@@ -296,7 +298,6 @@ table {
 </ul>
 
 Source code for the osm-livechanges project can be found on <a href="https://github.com/cstenac/osm-livechanges">Github</a>
-<a id="close_x" class="close sprited" href="#">close</a>
 </div>
 
 </body>
