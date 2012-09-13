@@ -559,7 +559,7 @@ $(document).ready(function() {
             /*marginRight: 10,*/
             animation : {
                 duration : 300, easing : 'linear'
-            },
+            }
         },
         title: {
             text: ''
@@ -625,7 +625,7 @@ formatter: function() {
             opacity: 1
         });
         var world = new L.tileLayer('http://{s}.tiles.mapbox.com/v3/mapbox.world-bank-borders-en/{z}/{x}/{y}.png', {
-            detectRetina: true, reuseTiles: true,
+            detectRetina: true, reuseTiles: true
         });
         var bluemarble = new L.layerGroup([nasa, world]);
 
@@ -635,7 +635,7 @@ formatter: function() {
         var control = new L.Control.Layers(  { "OpenMapQuest": omq, "Mapnik": mapnik , "NASA Blue Marble @ Mapbox" : bluemarble}, { "Heat Map" : heatLayer, "Markers" : markersGroup } );
         map = new L.Map('map', {
             center: new L.LatLng(25, 0),
-            zoom:3,
+            zoom:3
         });
         map.addLayer(omq);
         map.addLayer(markersGroup);
@@ -654,7 +654,7 @@ formatter: function() {
             center: new L.LatLng(0, 0),
             zoom:2,
             zoomControl: false,
-            attributionControl: false,
+            attributionControl: false
         });
         inactiveMap["map"].addLayer(mapnik);
         /*
