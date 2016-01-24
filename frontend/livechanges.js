@@ -32,9 +32,9 @@ var map = undefined;
 var allMarkers = [];
 var markersGroup = new L.LayerGroup();
 var greenIcon = L.icon({
-        iconAnchor: [15, 30],iconUrl : 'http://www.iosm.eu/live/lwt_map_icons/green/O.png'});
+        iconAnchor: [15, 30],iconUrl : '/i/marker.svg'});
 var redIcon = L.icon({
-        iconAnchor: [15, 30],iconUrl : 'http://www.iosm.eu/live/lwt_map_icons/brown/O.png'});
+        iconAnchor: [15, 30],iconUrl : '/i/marker.svg'});
 var heatLayer = undefined;
 
 // Bottom map
@@ -142,7 +142,7 @@ function onNextDataReady() {
 }
 
 function downloadData() {
-    $.getJSON("/~zorglub/livechanges/frontend/get-last-data.py?scale=" + scale,
+    $.getJSON("/get-last-data.py?scale=" + scale,
         function(data) {
 if (dbg) console.log("Data is ready");
             currentData = data;
@@ -247,7 +247,7 @@ if (dbg) console.warn("Changeset to zoom on not found !");
 
     if (("true" == getParameterByName("changesets_meta"))) {
         $("#meta_detail").html("Loading details ...");
-        $.getJSON("/~zorglub/livechanges/frontend/fetch-changeset-meta.py?id=" + id, 
+        $.getJSON("/fetch-changeset-meta.py?id=" + id,
           function(data) {
               var comment = data["tags"]["comment"];
               var created_by = data["tags"]["created_by"];
