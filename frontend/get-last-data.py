@@ -15,7 +15,7 @@ now = int(time.time())
 now_aligned = now - now % scale
 beg = (now - max_delay)
 
-db = sqlite3.connect("/home/zorglub/public_html/livechanges/backend/changesets.db")
+db = sqlite3.connect("/data/work/live/changesets.db")
 db.row_factory = sqlite3.Row
 c = db.cursor()
 
@@ -49,15 +49,15 @@ for time in xrange(now_aligned - max_delay, now_aligned, scale):
             lat = row["minLat"]
             lon = row["minLon"]
             rowCopy = copy(row)
-            geoData = urllib2.urlopen("http://localhost:9999/reverse?lat=%s&lon=%s" % (lat, lon)).read()
+#            geoData = urllib2.urlopen("http://localhost:9999/reverse?lat=%s&lon=%s" % (lat, lon)).read()
 #            print geoData
-            geocode = json.loads(geoData)
+#            geocode = json.loads(geoData)
 
             rowCopy["countries"] = []
-            for match in geocode["matches"]:
-                rowCopy["countries"].append(match["payload"])
-                if len(match["payload"]) == 2:
-                    rowCopy["country"] = match["payload"]
+#            for match in geocode["matches"]:
+#                rowCopy["countries"].append(match["payload"])
+#                if len(match["payload"]) == 2:
+#                    rowCopy["country"] = match["payload"]
  #           print "Found candidate changeset"
             # Keep this changeset for this time entry
             e["changesets"].append(rowCopy)

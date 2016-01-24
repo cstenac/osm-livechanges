@@ -10,7 +10,7 @@ changesetId = int(os.environ["QUERY_STRING"].split('=')[1])
 
 data = { "id": changesetId, "tags" : {}, "requested" : False }
 
-db = sqlite3.connect("/home/zorglub/public_html/livechanges/backend/changesets.db")
+db = sqlite3.connect("/data/work/live/changesets.db")
 db.row_factory = sqlite3.Row
 c = db.cursor()
 
