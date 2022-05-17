@@ -231,7 +231,7 @@ if (dbg) console.warn("Changeset to zoom on not found !");
     var drel = changeset["drel"];
  
 
-    $("#currentChangeset").html("Changeset <a target='_blank' href=\"http://osm.org/browse/changeset/" + id + "\">" + id + "</a> by <a target='_blank' href=\"http://osm.org/user/" + user + "\">" + user + "</a> " + getFlagImgHtml(changeset));
+    $("#currentChangeset").html("Changeset <a target='_blank' href=\"http://osm.org/browse/changeset/" + id + "\">" + id + "</a> by <a target='_blank' href=\"http://osm.org/user/" + user.replace(/'/g,"\\'") + "\">" + user + "</a> " + getFlagImgHtml(changeset));
 	$("#detail").html("<img style='padding: 2px; vertical-align:middle;' src='http://wiki.openstreetmap.org/w/images/b/b5/Mf_node.png' width=20 height=20> "
 		+ cnode + " node"+pluriel(cnode)+" added, " + mnode + " modified, " + dnode+" deleted<br>"
 		+ "<img style='padding: 2px; vertical-align:middle;' src='http://wiki.openstreetmap.org/w/images/6/6a/Mf_way.png' width=20 height=20> "
